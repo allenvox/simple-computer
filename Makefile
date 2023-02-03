@@ -1,5 +1,4 @@
 all: main
 .PHONY: main
 main: *.c
-	gcc -Wall -Wextra $@ $^
-
+	gcc -Wall -Wextra -o $@ $^
