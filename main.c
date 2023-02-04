@@ -1,7 +1,8 @@
-#include <stdio.h>
 #include "msc.h"
+#include <stdio.h>
 
-int main() {
+int main ()
+{
 
-    return 0;
+  return 0;
 }
