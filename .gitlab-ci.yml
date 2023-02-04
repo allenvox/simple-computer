@@ -1,18 +1,23 @@
 image: registry.csc.sibsutis.ru/ci/git-clang-format:latest
+
 stages:
   - check-format
   - build
   - test
+
 check-format:
   stage: check-format
   script:
-- find . -type f -name *.[ch] | xargs clang-format --style GNU -i --verbose - git diff --exit-code
+    - find . -type f -name *.[ch] | xargs clang-format --style GNU -i --verbose
+    - git diff --exit-code
+
 build:
   stage: build
   script:
-- make
+    - make
+
 test:
   stage: test
   when: manual
   script:
-- make
+    - make
