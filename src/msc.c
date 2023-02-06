@@ -14,7 +14,7 @@ sc_memorySet (int address,
 int
 sc_memoryGet (int address,
               int *value) // gets the value of [address] memory unit and
-                              // returns it into value var
+                          // returns it into value var
 {
 }
 
