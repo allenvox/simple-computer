@@ -7,13 +7,13 @@ sc_memoryInit () // initializes the array of 100 elements
 
 int
 sc_memorySet (int address,
-                  int value) // sets the value of [address] memory unit
+              int value) // sets the value of [address] memory unit
 {
 }
 
 int
 sc_memoryGet (int address,
-                  int *value) // gets the value of [address] memory unit and
+              int *value) // gets the value of [address] memory unit and
                               // returns it into value var
 {
 }
@@ -41,8 +41,9 @@ sc_regSet (int reg,
 {
 }
 
-int sc_regGet (int reg,
-               int *value) // gets the flag value, if wrong register - error
+int
+sc_regGet (int reg,
+           int *value) // gets the flag value, if wrong register - error
 {
 }
 
