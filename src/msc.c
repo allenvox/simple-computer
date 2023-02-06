@@ -1,26 +1,31 @@
 #include "msc.h"
 
-int sc_memoryInit () // initializes the array of 100 elements
+int
+sc_memoryInit () // initializes the array of 100 elements
 {
 }
 
-int sc_memorySet (int address,
+int
+sc_memorySet (int address,
                   int value) // sets the value of [address] memory unit
 {
 }
 
-int sc_memoryGet (int address,
+int
+sc_memoryGet (int address,
                   int *value) // gets the value of [address] memory unit and
                               // returns it into value var
 {
 }
 
-int sc_memorySave (
+int
+sc_memorySave (
     char *filename) // saves memory into a binary file (write/fwrite)
 {
 }
 
-int sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
+int
+sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 {
 }
 
@@ -49,7 +54,8 @@ sc_commandEncode (int command, int operand,
 {
 }
 
-int sc_commandDecode (
+int
+sc_commandDecode (
     int value, int *command,
     int *operand) // decodes value as a sc command, if decoding is impossible -
                   // sets error command and returns an error
