@@ -1,4 +1,4 @@
-all: main
-.PHONY: main
-main: *.c
+all: bin/main
+.PHONY: bin/main
+bin/main: src/*.c
 	gcc -Wall -Wextra -o $@ $^
