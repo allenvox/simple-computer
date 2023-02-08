@@ -17,8 +17,8 @@
 #define ERR_WRONG_OPERAND -5
 
 // bit operations
-#define BIT_SET1(X, Y) X = X | (1 << (Y - 1))
-#define BIT_SET0(X, Y) X = X & (~(1 << (Y - 1)))
+#define BIT_SET(X, Y) X = X | (1 << (Y - 1))
+#define BIT_DEL(X, Y) X = X & (~(1 << (Y - 1)))
 #define BIT_GET(X, Y) X >> (Y - 1) & 0x1
 
 int sc_memoryInit (); // initializes the array of 100 elements
