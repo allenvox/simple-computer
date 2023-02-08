@@ -1,8 +1,14 @@
 #include "msc.h"
+#include <inttypes.h>
+#include <stdlib.h>
+
+int sc_memory[MEMSIZE];
 
 int
 sc_memoryInit () // initializes the array of 100 elements
 {
+    memset(sc_memory, 0, MEMSIZE * sizeof(sc_memory[0]));
+    return 0;
 }
 
 int
