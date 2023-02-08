@@ -69,6 +69,8 @@ sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 int
 sc_regInit (void) // inits the register of flags with 0
 {
+    sc_register = 0;
+    return 0;
 }
 
 int
