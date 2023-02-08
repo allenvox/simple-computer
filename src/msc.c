@@ -1,6 +1,7 @@
 #include "msc.h"
 #include <inttypes.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int sc_memory[MEMSIZE];
 
@@ -28,11 +29,27 @@ int
 sc_memorySave (
     char *filename) // saves memory into a binary file (write/fwrite)
 {
+    FILE *f = fopen(filename, "wb");
+    if (!f)
+    {
+        return 1;
+    }
+    fwrite(sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
+    fclose(f);
+    return 0;
 }
 
 int
 sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 {
+    FILE *f = fopen(filename, "rb");
+    if (!f)
+    {
+        return 1;
+    }
+    fread(sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
+    fclose(f);
+    return 0;
 }
 
 int
