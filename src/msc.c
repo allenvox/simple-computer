@@ -9,7 +9,7 @@ int sc_register;
 int
 sc_memoryInit () // initializes the array of 100 elements
 {
-  memset(sc_memory, 0, MEMSIZE * sizeof(sc_memory[0]));
+  memset (sc_memory, 0, MEMSIZE * sizeof(sc_memory[0]));
   return 0;
 }
 
@@ -19,7 +19,7 @@ sc_memorySet (int address,
 {
   if (address < 0 || address >= MEMSIZE)
     {
-      BIT_SET(sc_register, FLAG_WRONG_ADDRESS);
+      BIT_SET (sc_register, FLAG_WRONG_ADDRESS);
       return FLAG_WRONG_ADDRESS;
     }
   sc_memory[address] = value;
@@ -32,7 +32,7 @@ sc_memoryGet (int address, // gets the value of [address] memory unit and
 {
   if (address < 0 || address >= MEMSIZE)
     {
-      BIT_SET(sc_register, FLAG_WRONG_ADDRESS);
+      BIT_SET (sc_register, FLAG_WRONG_ADDRESS);
       return FLAG_WRONG_ADDRESS;
     }
   *value = sc_memory[address];
@@ -43,26 +43,26 @@ int
 sc_memorySave (
     char *filename) // saves memory into a binary file (write/fwrite)
 {
-  FILE *f = fopen(filename, "wb");
+  FILE *f = fopen (filename, "wb");
   if (!f)
     {
       return 1;
     }
-  fwrite(sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
-  fclose(f);
+  fwrite (sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
+  fclose (f);
   return 0;
 }
 
 int
 sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 {
-  FILE *f = fopen(filename, "rb");
+  FILE *f = fopen (filename, "rb");
   if (!f)
     {
       return 1;
     }
-  fread(sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
-  fclose(f);
+  fread (sc_memory, sizeof(int), sizeof(sc_memory) / sizeof(int), f);
+  fclose (f);
   return 0;
 }
 
@@ -83,15 +83,15 @@ sc_regSet (int reg,   // sets the flag register value, #define-s are used for
     }
   if (!value)
     {
-      BIT_DEL(sc_register, reg);
+      BIT_DEL (sc_register, reg);
       return 0;
     }
   if (value != 1)
     {
-      BIT_SET(sc_register, FLAG_OVERFLOW);
+      BIT_SET (sc_register, FLAG_OVERFLOW);
       return ERR_WRONG_VALUE;
     }
-  BIT_SET(sc_register, reg);
+  BIT_SET (sc_register, reg);
   return 0;
 }
 
@@ -103,7 +103,7 @@ sc_regGet (int reg,
     {
       return ERR_WRONG_FLAG;
     }
-  *value = BIT_GET(sc_register, reg);
+  *value = BIT_GET (sc_register, reg);
   return 0;
 }
 
