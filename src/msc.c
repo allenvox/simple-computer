@@ -77,12 +77,34 @@ int
 sc_regSet (int reg,   // sets the flag register value, #define-s are used for
            int value) // register numbers, if wrong register number - error
 {
+    if (reg < 0 || reg > 4)
+    {
+        return ERR_WRONG_FLAG;
+    }
+    if (!value)
+    {
+        BIT_DEL(sc_register, reg);
+        return 0;
+    }
+    if (value != 1)
+    {
+        BIT_SET(sc_register, FLAG_OVERFLOW);
+        return ERR_WRONG_VALUE;
+    }
+    BIT_SET(sc_register, reg);
+    return 0;
 }
 
 int
 sc_regGet (int reg,
            int *value) // gets the flag value, if wrong register - error
 {
+    if (reg < 0 || reg > 4)
+    {
+        return ERR_WRONG_FLAG;
+    }
+    *value = BIT_GET(sc_register, reg);
+    return 0;
 }
 
 int
