@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int sc_memory[MEMSIZE];
 int sc_register;
@@ -142,7 +143,7 @@ sc_commandDecode (
     int *command, // decodes value as a sc command, if decoding is impossible -
     int *operand) // sets error command and returns an error
 {
-  if (value & (1 << 14) != 0)
+  if ((value & (1 << 14)) != 0)
     {
       sc_regSet (FLAG_WRONG_COMMAND, 1);
       return ERR_WRONG_COMMAND;
