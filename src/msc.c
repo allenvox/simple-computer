@@ -112,6 +112,23 @@ sc_commandEncode (int command, // encodes command with a specific number and
                   int operand, // operand, puts the result in value, if wrong
                   int *value)  // command or operand - error, value not changes
 {
+  // commands list: 0x10, 0x11, 0x20, 0x21, 0x30, 0x31, 0x32, 0x33, 0x40, 0x41, 0x42, 0x43, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76
+  if ((command > 0x76 || command < 0x10) || (command > 0x11 & command < 0x20) || (command > 0x21 & command > 0x30) || (command > 0x33 & command < 0x40) || (command > 0x43 & command < 0x51))
+    {
+      sc_regSet(FLAG_WRONG_COMMAND, 1);
+      return ERR_WRONG_COMMAND;
+    }
+  if (operand < 0 || operand > 127)
+    {
+      sc_regSet(ERR_WRONG_OPERAND, 1);
+      return ERR_WRONG_OPERAND;
+    }
+  int16_t encoded = 0b0000000000000000 | command;
+  encoded <<= 7;
+  encoded |= operand;
+  encoded |= 0 << 14;
+  *value = encoded;
+  return 0;
 }
 
 int
@@ -120,4 +137,5 @@ sc_commandDecode (
     int *command, // decodes value as a sc command, if decoding is impossible -
     int *operand) // sets error command and returns an error
 {
+  
 }
