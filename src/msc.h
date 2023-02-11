@@ -9,7 +9,7 @@
 
 // flags
 #define FLAG_WRONG_COMMAND 5
-#define FLAG_IGNOR_PULS 4
+#define FLAG_WRONG_OPERAND 4
 #define FLAG_WRONG_ADDRESS 3
 #define FLAG_DIV_BY_ZERO 2
 #define FLAG_OVERFLOW 1
