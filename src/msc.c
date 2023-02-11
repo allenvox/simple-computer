@@ -122,7 +122,7 @@ sc_commandEncode (int command, // encodes command with a specific number and
     }
   if (operand < 0 || operand > 127)
     {
-      sc_regSet (ERR_WRONG_OPERAND, 1);
+      sc_regSet (FLAG_WRONG_OPERAND, 1);
       return ERR_WRONG_OPERAND;
     }
   int encoded = 0b0000000000000000 | command;
