@@ -74,7 +74,7 @@ int
 sc_regSet (int reg,   // sets the flag register value, #define-s are used for
            int value) // register numbers, if wrong register number - error
 {
-  if (reg < 0 || reg > 4)
+  if (reg < 0 || reg > 5)
     {
       return ERR_WRONG_FLAG;
     }
