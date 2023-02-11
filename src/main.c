@@ -60,7 +60,8 @@ main ()
   printf ("(encode) command '%d' operand '%d' = '%d' SimpleComputer\n",
           command, operand, val);
   sc_commandDecode (val, &command, &operand);
-  printf ("(decode) SimpleComputer '%d' = command '%d' operand '%d'\n", val, command, operand);
+  printf ("(decode) SimpleComputer '%d' = command '%d' operand '%d'\n", val,
+          command, operand);
   sc_commandEncode (0x0, 129, &val);     // try to encode wrong command
   printf ("(encode) value = %d\n", val); // not changes
   sc_regGet (FLAG_WRONG_COMMAND, &val);
