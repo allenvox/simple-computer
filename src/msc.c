@@ -17,7 +17,7 @@ sc_memorySet (int address,
   if (address < 0 || address >= MEMSIZE)
     {
       BIT_SET (sc_register, FLAG_WRONG_ADDRESS);
-      return FLAG_WRONG_ADDRESS;
+      return ERR_WRONG_ADDRESS;
     }
   sc_memory[address] = value;
   return 0;
@@ -30,7 +30,7 @@ sc_memoryGet (int address, // gets the value of [address] memory unit and
   if (address < 0 || address >= MEMSIZE)
     {
       BIT_SET (sc_register, FLAG_WRONG_ADDRESS);
-      return FLAG_WRONG_ADDRESS;
+      return ERR_WRONG_ADDRESS;
     }
   *value = sc_memory[address];
   return 0;
