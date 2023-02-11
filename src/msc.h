@@ -1,5 +1,31 @@
 #pragma once
 
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MEMSIZE 100
+
+// flags
+#define FLAG_WRONG_COMMAND 5
+#define FLAG_WRONG_OPERAND 4
+#define FLAG_WRONG_ADDRESS 3
+#define FLAG_DIV_BY_ZERO 2
+#define FLAG_OVERFLOW 1
+
+// errors
+#define ERR_WRONG_ADDRESS -1
+#define ERR_WRONG_FLAG -2
+#define ERR_WRONG_VALUE -3
+#define ERR_WRONG_COMMAND -4
+#define ERR_WRONG_OPERAND -5
+
+// bit operations
+#define BIT_SET(X, Y) X = X | (1 << (Y - 1))
+#define BIT_DEL(X, Y) X = X & (~(1 << (Y - 1)))
+#define BIT_GET(X, Y) X >> (Y - 1) & 0x1
+
 int sc_memoryInit (); // initializes the array of 100 elements
 
 int sc_memorySet (int address,
