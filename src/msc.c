@@ -96,7 +96,7 @@ int
 sc_regGet (int reg,
            int *value) // gets the flag value, if wrong register - error
 {
-  if (reg < 0 || reg > 4)
+  if (reg < 0 || reg > 5)
     {
       return ERR_WRONG_FLAG;
     }
