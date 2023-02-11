@@ -128,7 +128,6 @@ sc_commandEncode (int command, // encodes command with a specific number and
   int encoded = 0b0000000000000000 | command;
   encoded <<= 7;
   encoded |= operand;
-  encoded |= 0 << 14;
   *value = encoded;
   return 0;
 }
