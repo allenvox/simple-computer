@@ -1,8 +1,4 @@
 #include "msc.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int sc_memory[MEMSIZE];
 int sc_register;
@@ -129,7 +125,7 @@ sc_commandEncode (int command, // encodes command with a specific number and
       sc_regSet (ERR_WRONG_OPERAND, 1);
       return ERR_WRONG_OPERAND;
     }
-  int16_t encoded = 0b0000000000000000 | command;
+  int encoded = 0b0000000000000000 | command;
   encoded <<= 7;
   encoded |= operand;
   encoded |= 0 << 14;
@@ -148,8 +144,8 @@ sc_commandDecode (
       sc_regSet (FLAG_WRONG_COMMAND, 1);
       return ERR_WRONG_COMMAND;
     }
+  *command = (value >> 7);
+  value -= (*command << 7);
   *operand = value;
-  *operand &= ~(1 << 7);
-  *command = value >> 7;
   return 0;
 }
