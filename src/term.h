@@ -7,8 +7,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define clear_screen "\E[H\E[2J"
-#define TERM "/dev/tty"
+#define CLEAR "\E[H\E[2J"
 
 enum colors
 {
