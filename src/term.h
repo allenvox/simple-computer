@@ -1,7 +1,14 @@
 #pragma once
 
-#define clear_screen "\E[H\E[2J"
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
+#define clear_screen "\E[H\E[2J"
+#define TERM "/dev/tty"
 
 enum colors
 {
