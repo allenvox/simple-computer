@@ -1,8 +1,7 @@
 #include "msc.h"
-#include <stdio.h>
 
 int
-main ()
+msc_test ()
 {
   sc_memoryInit ();
   printf ("(init) memory[...] = 0\n");
