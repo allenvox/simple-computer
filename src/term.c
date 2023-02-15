@@ -11,7 +11,13 @@ int mt_clrscr(void) // clears screen and moves cursor to upper left corner
 
 int mt_gotoXY(int x, int y) // moves cursor to the entered coordinates (x, y) = (row, col)
 {
-  
+  char go[30];
+  sprintf (go, "\E[%d;%dH", x, y);
+  if (write (STDOUT_FILENO, go, strlen (go)) < sizeof (char) * strlen(go))
+    {
+      return -1;
+    }
+  return 0;
 }
 
 int mt_getscreensize(int *rows, int *cols) // gets terminal screen size (num of rows and cols)
