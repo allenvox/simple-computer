@@ -3,7 +3,7 @@
 int
 mt_clrscr (void) // clears screen and moves cursor to upper left corner
 {
-  if (write (STDOUT_FILENO, CLEAR, strlen(CLEAR))
+  if (write (STDOUT_FILENO, CLEAR, strlen (CLEAR))
       < sizeof (char) * strlen (CLEAR))
     {
       return -1;
