@@ -32,7 +32,7 @@ int mt_getscreensize(int *rows, int *cols) // gets terminal screen size (num of 
   return 0;
 }
 
-int mt_setfgcolor(enum colors color) // sets a font (foreground) color for upcoming characters
+int mt_setfgcolor(enum colors color) // sets a background color for all rows and cols, entire terminal
 {
   char foreground[30];
   sprintf (foreground, "\E[38;5;%dm", color);
@@ -43,7 +43,7 @@ int mt_setfgcolor(enum colors color) // sets a font (foreground) color for upcom
   return 0;
 }
 
-int mt_setbgcolor(enum colors color) // sets a background color for upcoming characters
+int mt_setbgcolor(enum colors color) // sets a background color only for upcoming characters
 {
   char background[30];
   sprintf (background, "\E[48;5;%dm", color);
