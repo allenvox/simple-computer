@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int
-main ()
+term_test ()
 {
   mt_clrscr ();
   printf ("hello, this is default terminal\n");
