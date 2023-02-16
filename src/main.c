@@ -6,22 +6,22 @@
 
 int output_memreg ()
 {
-  printf("|  ");
-  for (int i = 0; i < 5 * 6 - 4; i++)
+  printf("┌");
+  for (int i = 0; i < 5 * 6 - 3; i++)
     {
-      printf ("—");
+      printf ("─");
     }
   printf (" Memory ");
-  for (int i = 0; i < 5 * 6 - 4; i++)
+  for (int i = 0; i < 5 * 6 - 3; i++)
     {
-      printf ("—");
+      printf ("─");
     }
-  printf ("\n");
+  printf ("┐\n");
   for (int i = 0; i < 100; i++)
     {
       if (i == 0)
         {
-          printf ("|  ");
+          printf ("│  ");
         }
       int val;
       char cell[5];
@@ -30,19 +30,25 @@ int output_memreg ()
       printf ("%s  ", cell);
       if (i % 10 == 9)
         {
-          printf ("|\n|  ");
+          printf ("│\n");
+          if (i < 99)
+            {
+              printf("│  ");
+            }
         }
     }
-  for (int i = 0; i < 5 * 6 - 5; i++)
+  printf ("├");
+  for (int i = 0; i < 5 * 6 - 4; i++)
     {
-      printf ("—");
+      printf ("─");
     }
+
   printf (" Register ");
-  for (int i = 0; i < 5 * 6 - 5; i++)
+  for (int i = 0; i < 5 * 6 - 4; i++)
     {
-      printf ("—");
+      printf ("─");
     }
-  printf ("\n");
+  printf ("┤\n");
   return 0;
 }
 
