@@ -75,7 +75,8 @@ out_GUI ()
       if (i % 10 == 9)
         {
           printf ("│ ");
-          switch (i) {
+          switch (i)
+            {
             case 9:
               printf ("│  ");
               out_flags ();
@@ -126,7 +127,7 @@ out_GUI ()
             case 99:
               printf ("│ ");
               break;
-          }
+            }
           printf ("\n");
           if (i < 99)
             {
