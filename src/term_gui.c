@@ -18,9 +18,9 @@ out_border_top ()
   printf (" Memory ");
   out_N_hor (32);
   printf ("┐ ┌");
-  out_N_hor (6);
+  out_N_hor (5);
   printf (" Flags ");
-  out_N_hor (6);
+  out_N_hor (5);
   printf ("┐\n");
 }
 
@@ -75,18 +75,58 @@ out_GUI ()
       if (i % 10 == 9)
         {
           printf ("│ ");
-          if (i == 9)
-            {
-              printf ("│   ");
+          switch (i) {
+            case 9:
+              printf ("│  ");
               out_flags ();
-              printf ("   │");
-            }
-          if (i == 19)
-            {
+              printf ("  │");
+              break;
+            case 19:
               printf ("└");
-              out_N_hor (19);
+              out_N_hor (17);
               printf ("┘");
-            }
+              break;
+            case 29:
+              printf ("┌");
+              out_N_hor (2);
+              printf (" Accumulator ");
+              out_N_hor (2);
+              printf ("┐");
+              break;
+            case 39:
+              printf ("│ ");
+              break;
+            case 49:
+              printf ("└");
+              out_N_hor (17);
+              printf ("┘");
+              break;
+            case 59:
+              printf ("┌");
+              out_N_hor (2);
+              printf (" Instr. co-er ");
+              out_N_hor (1);
+              printf ("┐");
+              break;
+            case 69:
+              printf ("│ ");
+              break;
+            case 79:
+              printf ("└");
+              out_N_hor (17);
+              printf ("┘");
+              break;
+            case 89:
+              printf ("┌");
+              out_N_hor (3);
+              printf (" Operation ");
+              out_N_hor (3);
+              printf ("┐");
+              break;
+            case 99:
+              printf ("│ ");
+              break;
+          }
           printf ("\n");
           if (i < 99)
             {
@@ -100,7 +140,9 @@ out_GUI ()
   out_N_hor (10);
   printf ("┬");
   out_N_hor (45);
-  printf ("┤\n│ ");
+  printf ("┤ └");
+  out_N_hor (17);
+  printf ("┘\n│ ");
   printf ("l — load\ts - save   ");
   printf ("│\n│ ");
   printf ("r — run\tt - step   ");
