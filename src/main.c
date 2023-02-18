@@ -15,10 +15,10 @@ main ()
       sc_memorySet (i, i);
     }
   sc_regInit ();
-  sc_regSet(1, 1);
-  sc_regSet(2, 1);
-  sc_regSet(4, 1);
-  sc_regSet(16, 1);
+  sc_regSet (1, 1);
+  sc_regSet (2, 1);
+  sc_regSet (4, 1);
+  sc_regSet (16, 1);
   out_GUI ();
   return 0;
 }

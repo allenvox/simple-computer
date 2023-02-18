@@ -1,7 +1,8 @@
-#include "msc.h"
 #include "term_gui.h"
+#include "msc.h"
 
-void out_N_hor (int n)
+void
+out_N_hor (int n)
 {
   for (int i = 0; i < n; i++)
     {
@@ -9,9 +10,10 @@ void out_N_hor (int n)
     }
 }
 
-void out_border_top ()
+void
+out_border_top ()
 {
-  printf("┌");
+  printf ("┌");
   out_N_hor (32);
   printf (" Memory ");
   out_N_hor (32);
@@ -22,41 +24,44 @@ void out_border_top ()
   printf ("┐\n");
 }
 
-void out_flags ()
+void
+out_flags ()
 {
   int flag = 0;
-  sc_regGet(1, &flag);
+  sc_regGet (1, &flag);
   char F = flag == 1 ? 'F' : ' ';
-  sc_regGet(2, &flag);
+  sc_regGet (2, &flag);
   char D = flag == 1 ? 'D' : ' ';
-  sc_regGet(4, &flag);
+  sc_regGet (4, &flag);
   char A = flag == 1 ? 'A' : ' ';
-  sc_regGet(8, &flag);
+  sc_regGet (8, &flag);
   char O = flag == 1 ? 'O' : ' ';
-  sc_regGet(16, &flag);
+  sc_regGet (16, &flag);
   char C = flag == 1 ? 'C' : ' ';
   printf ("%c  %c  %c  %c  %c", F, D, A, O, C);
 }
 
-void out_memcell (int n)
+void
+out_memcell (int n)
 {
   int val;
   char cell[5];
   sc_memoryGet (n, &val);
   if (val < 0)
     {
-      printf("-");
+      printf ("-");
       val *= -1;
     }
   else
     {
-      printf("+");
+      printf ("+");
     }
   sprintf (cell, "%04d", val);
   printf ("%s", cell);
 }
 
-void out_GUI ()
+void
+out_GUI ()
 {
   out_border_top ();
   for (int i = 0; i < 100; i++)
@@ -66,7 +71,7 @@ void out_GUI ()
           printf ("│  ");
         }
       out_memcell (i);
-      printf("  ");
+      printf ("  ");
       if (i % 10 == 9)
         {
           printf ("│ ");
@@ -85,7 +90,7 @@ void out_GUI ()
           printf ("\n");
           if (i < 99)
             {
-              printf("│  ");
+              printf ("│  ");
             }
         }
     }
