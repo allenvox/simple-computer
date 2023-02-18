@@ -10,6 +10,10 @@ main ()
 {
   mt_clrscr ();
   sc_memoryInit ();
+  for (int i = 3; i < 100; i *= 3)
+    {
+      sc_memorySet (i, i);
+    }
   sc_regInit ();
   sc_regSet(1, 1);
   sc_regSet(2, 1);
