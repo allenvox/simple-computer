@@ -43,7 +43,7 @@ void out_memcell (int n)
   int val;
   char cell[5];
   sc_memoryGet (n, &val);
-  if (val > 0)
+  if (val < 0)
     {
       printf("-");
       val *= -1;
@@ -105,6 +105,8 @@ void out_GUI ()
   printf ("F6 — instruction counter ");
   printf ("│\n");
   printf ("└");
-  out_N_hor (24);
-  printf ("\n");
+  out_N_hor (26);
+  printf ("┴");
+  out_N_hor (45);
+  printf ("┘\n");
 }
