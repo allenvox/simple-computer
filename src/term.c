@@ -3,7 +3,7 @@
 int
 mt_clrscr (void) // clears screen and moves cursor to upper left corner
 {
-  if (write (STDOUT_FILENO, CLEAR, strlen (CLEAR))
+  if ((unsigned long) write (STDOUT_FILENO, CLEAR, strlen (CLEAR))
       < sizeof (char) * strlen (CLEAR))
     {
       return -1;
@@ -18,7 +18,7 @@ mt_gotoXY (
 {
   char go[30];
   sprintf (go, "\E[%d;%dH", x, y);
-  if (write (STDOUT_FILENO, go, strlen (go)) < sizeof (char) * strlen (go))
+  if ((unsigned long) write (STDOUT_FILENO, go, strlen (go)) < sizeof (char) * strlen (go))
     {
       return -1;
     }
@@ -44,7 +44,7 @@ mt_setfgcolor (enum colors color) // sets a background color for all rows and
 {                                 // cols, entire terminal
   char foreground[30];
   sprintf (foreground, "\E[38;5;%dm", color);
-  if (write (STDOUT_FILENO, foreground, strlen (foreground))
+  if ((unsigned long) write (STDOUT_FILENO, foreground, strlen (foreground))
       < sizeof (char) * strlen (foreground))
     {
       return -1;
@@ -58,7 +58,7 @@ mt_setbgcolor (
 {
   char background[30];
   sprintf (background, "\E[48;5;%dm", color);
-  if (write (STDOUT_FILENO, background, strlen (background))
+  if ((unsigned long) write (STDOUT_FILENO, background, strlen (background))
       < sizeof (char) * strlen (background))
     {
       return -1;
