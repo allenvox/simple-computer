@@ -57,3 +57,11 @@ int sc_commandDecode (
     int value,    // decodes value as a sc command, if decoding is impossible
     int *command, // - sets error command and returns an error
     int *operand);
+
+int sc_accumGet(int *value);
+
+int sc_accumSet(int value);
+
+int sc_countSet(int value);
+
+int sc_countGet(int *value);
