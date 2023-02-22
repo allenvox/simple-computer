@@ -1,31 +1,11 @@
 #include "term_gui.h"
+#include "term.h"
+#include "bc.h"
 #include "msc.h"
+#include "readkey.h"
 
-void
-out_N_hor (int n)
-{
-  for (int i = 0; i < n; i++)
-    {
-      printf ("─");
-    }
-}
-
-void
-out_border_top ()
-{
-  printf ("┌");
-  out_N_hor (32);
-  printf (" Memory ");
-  out_N_hor (32);
-  printf ("┐ ┌");
-  out_N_hor (5);
-  printf (" Flags ");
-  out_N_hor (5);
-  printf ("┐\n");
-}
-
-void
-out_flags ()
+char *
+g_flags ()
 {
   int flag = 0;
   sc_regGet (1, &flag);
@@ -38,123 +18,107 @@ out_flags ()
   char O = flag == 1 ? 'O' : ' ';
   sc_regGet (16, &flag);
   char C = flag == 1 ? 'C' : ' ';
-  printf ("%c  %c  %c  %c  %c", F, D, A, O, C);
+  char buff[14];
+  sprintf (buff, "%c  %c  %c  %c  %c", F, D, A, O, C);
+  return buff;
 }
 
 void
-out_memcell (int n)
+g_static ()
 {
+  bc_box (1, 1, 12, 63);
+  mt_gotoXY (0, 28);
+  write (STDOUT_FILENO, " Memory ", 8 * sizeof (char));
+  bc_box (1, 64, 3, 39);
+  mt_gotoXY (1, 77);
+  write (STDOUT_FILENO, " accumulator ", 13 * sizeof (char));
+  bc_box (4, 64, 3, 39);
+  mt_gotoXY (4, 73);
+  write (STDOUT_FILENO, " instructionCounter ", 20 * sizeof (char));
+  bc_box (7, 64, 3, 39);
+  mt_gotoXY (7, 78);
+  write (STDOUT_FILENO, " Operation ", 11 * sizeof (char));
+  bc_box (10, 64, 3, 39);
+  mt_gotoXY (10, 79);
+  write (STDOUT_FILENO, " Flags ", 7 * sizeof (char));
+  bc_box (13, 1, 12, 63);
+  bc_box (13, 64, 12, 39);
+  mt_gotoXY (13, 67);
+  write (STDOUT_FILENO, " Keys ", 7 * sizeof (char));
+  char *str[7] = {"l - load", "s - save", "r - run", "t - step", "i - reset", "F5 - accumulator", "F6 - instructionCounter"};
+  for (int i = 0; i < 7; i++)
+    {
+      mt_gotoXY (15 + i, 66);
+      write (STDOUT_FILENO, str[i], strlen (str[i]));
+    }
+  mt_gotoXY (33, 0);
+}
+
+void
+g_memorybox ()
+{
+  int k = 0;
+  for (int i = 2; i < 12; i++)
+    {
+      for (int j = 3; j < 63; j += 6)
+        {
+          mt_gotoXY (i, j);
+          char buff[6];
+          int val;
+          sc_memoryGet (k++, &val);
+          sprintf (buff, "+%04d", val);
+          write (STDERR_FILENO, buff, 6 * sizeof (char));
+        }
+    }
+}
+
+void
+g_accumbox ()
+{
+  mt_gotoXY (2, 80);
+  char buff[5];
   int val;
-  char cell[5];
-  sc_memoryGet (n, &val);
-  if (val < 0)
-    {
-      printf ("-");
-      val *= -1;
-    }
-  else
-    {
-      printf ("+");
-    }
-  sprintf (cell, "%04d", val);
-  printf ("%s", cell);
+  sc_accumGet (&val);
+  sprintf (buff, "%04x", val);
+  write (STDOUT_FILENO, buff, 5 * sizeof (char));
+  mt_gotoXY (33, 0);
 }
 
 void
-out_GUI ()
+g_counterbox ()
 {
-  out_border_top ();
-  for (int i = 0; i < 100; i++)
+  mt_gotoXY (5, 80);
+  char buff[5];
+  int val;
+  sc_countGet (&val);
+  sprintf (buff, "%04x", val);
+  write (STDOUT_FILENO, buff, 5 * sizeof (char));
+  mt_gotoXY (33, 0);
+}
+
+void
+g_operationbox ()
+{
+  mt_gotoXY (8, 79);
+  write (STDOUT_FILENO, "+00 : 00", 8 * sizeof (char));
+  mt_gotoXY (33, 0);
+}
+
+void
+g_flagbox ()
+{
+  mt_gotoXY (11, 79);
+  write (STDOUT_FILENO, g_flags(), 14 * sizeof (char));
+  mt_gotoXY (33, 0);
+}
+
+void
+g_bcbox (int *big)
+{
+    for (int i = 0; i < 6; i++)
     {
-      if (i == 0)
-        {
-          printf ("│  ");
-        }
-      out_memcell (i);
-      printf ("  ");
-      if (i % 10 == 9)
-        {
-          printf ("│ ");
-          switch (i)
-            {
-            case 9:
-              printf ("│  ");
-              out_flags ();
-              printf ("  │");
-              break;
-            case 19:
-              printf ("└");
-              out_N_hor (17);
-              printf ("┘");
-              break;
-            case 29:
-              printf ("┌");
-              out_N_hor (2);
-              printf (" Accumulator ");
-              out_N_hor (2);
-              printf ("┐");
-              break;
-            case 39:
-              printf ("│ ");
-              break;
-            case 49:
-              printf ("└");
-              out_N_hor (17);
-              printf ("┘");
-              break;
-            case 59:
-              printf ("┌");
-              out_N_hor (2);
-              printf (" Instr. co-er ");
-              out_N_hor (1);
-              printf ("┐");
-              break;
-            case 69:
-              printf ("│ ");
-              break;
-            case 79:
-              printf ("└");
-              out_N_hor (17);
-              printf ("┘");
-              break;
-            case 89:
-              printf ("┌");
-              out_N_hor (3);
-              printf (" Operation ");
-              out_N_hor (3);
-              printf ("┐");
-              break;
-            case 99:
-              printf ("│ ");
-              break;
-            }
-          printf ("\n");
-          if (i < 99)
-            {
-              printf ("│  ");
-            }
-        }
+      int digit[2] = {big[2 * i], big[2 * i + 1]};
+      bc_printbigchar (digit, BC_X, BC_START + i * BC_STEP, DEFAULT, DEFAULT);
     }
-  printf ("├");
-  out_N_hor (10);
-  printf (" Keys ");
-  out_N_hor (10);
-  printf ("┬");
-  out_N_hor (45);
-  printf ("┤ └");
-  out_N_hor (17);
-  printf ("┘\n│ ");
-  printf ("l — load\ts - save   ");
-  printf ("│\n│ ");
-  printf ("r — run\tt - step   ");
-  printf ("│\n│ ");
-  printf ("i — reset\tF5 - accum ");
-  printf ("│\n│ ");
-  printf ("F6 — instruction counter ");
-  printf ("│\n");
-  printf ("└");
-  out_N_hor (26);
-  printf ("┴");
-  out_N_hor (45);
-  printf ("┘\n");
+    mt_gotoXY (33, 0);
 }
