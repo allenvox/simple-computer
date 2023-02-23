@@ -115,10 +115,10 @@ g_flagbox ()
 void
 g_bcbox (int *big)
 {
-    for (int i = 0; i < 6; i++)
+  for (int i = 0; i < 6; i++)
     {
       int digit[2] = {big[2 * i], big[2 * i + 1]};
-      bc_printbigchar (digit, BC_X, BC_START + i * BC_STEP, DEFAULT, DEFAULT);
+      bc_printbigchar (digit, BC_X, BC_START + i * BC_STEP, GREEN, GREY);
     }
-    mt_gotoXY (33, 0);
+  mt_gotoXY (33, 0);
 }
