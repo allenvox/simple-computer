@@ -58,10 +58,10 @@ int sc_commandDecode (
     int *command, // - sets error command and returns an error
     int *operand);
 
-int sc_accumGet(int *value);
+int sc_accumGet (int *value);
 
-int sc_accumSet(int value);
+int sc_accumSet (int value);
 
-int sc_countSet(int value);
+int sc_countSet (int value);
 
-int sc_countGet(int *value);
+int sc_countGet (int *value);
