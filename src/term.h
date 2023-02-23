@@ -11,16 +11,13 @@
 
 enum colors
 {
-  BLACK,
-  RED,
-  GREEN,
-  YELLOW,
-  BLUE,
-  MAGENTA,
-  CYAN,
-  WHITE,
-  UNKNOWN,
-  DEFAULT
+  LIGHT_GREY = 247,
+  GREY = 237,
+  BLACK = 16,
+  RED = 124,
+  GREEN = 41,
+  BLUE = 20,
+  YELLOW = 184,
 };
 
 int mt_clrscr (void); // clears screen and moves cursor to upper left corner
