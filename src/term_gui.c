@@ -54,6 +54,16 @@ g_static ()
   mt_gotoXY (33, 0);
 }
 
+char *
+g_getMem (int address)
+{
+  char buff[6];
+  int val;
+  sc_memoryGet (address, &val);
+  sprintf (buff, "+%04d", val);
+  return buff;
+}
+
 void
 g_memorybox ()
 {
@@ -63,11 +73,7 @@ g_memorybox ()
       for (int j = 3; j < 63; j += 6)
         {
           mt_gotoXY (i, j);
-          char buff[6];
-          int val;
-          sc_memoryGet (k++, &val);
-          sprintf (buff, "+%04d", val);
-          write (STDERR_FILENO, buff, 6 * sizeof (char));
+          write (STDERR_FILENO, g_getMem (k++), 6 * sizeof (char));
         }
     }
 }
@@ -79,7 +85,7 @@ g_accumbox ()
   char buff[5];
   int val;
   sc_accumGet (&val);
-  sprintf (buff, "%04x", val);
+  sprintf (buff, "%04d", val);
   write (STDOUT_FILENO, buff, 5 * sizeof (char));
   mt_gotoXY (33, 0);
 }
@@ -91,7 +97,7 @@ g_counterbox ()
   char buff[5];
   int val;
   sc_countGet (&val);
-  sprintf (buff, "%04x", val);
+  sprintf (buff, "%04d", val);
   write (STDOUT_FILENO, buff, 5 * sizeof (char));
   mt_gotoXY (33, 0);
 }
