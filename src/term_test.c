@@ -13,7 +13,7 @@ term_test ()
   printf ("hello, this is green background for outputted text\n");
   getchar ();
 
-  mt_setbgcolor (DEFAULT);
+  mt_setbgcolor (GREY);
   mt_clrscr ();
   mt_setfgcolor (RED);
   printf ("hello, this is red background for everything\n");
