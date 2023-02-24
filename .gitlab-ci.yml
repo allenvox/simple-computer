@@ -8,7 +8,7 @@ stages:
 check-format:
   stage: check-format
   script:
-    - git ls-files '*.c' '*.h' | xargs clang-format --style GNU -i --verbose && git diff --exit-code
+    - git ls-files '*.c' '*.h' -- ':!:*ctest.h' | xargs clang-format --style GNU -i --verbose && git diff --exit-code
 
 build:
   stage: build
