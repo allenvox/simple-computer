@@ -3,6 +3,9 @@
 #include "bc.h"
 #include "msc.h"
 #include "readkey.h"
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
 char *
 g_flags ()
@@ -54,16 +57,6 @@ g_static ()
   mt_gotoXY (33, 0);
 }
 
-char *
-g_getMem (int address)
-{
-  char buff[6];
-  int val;
-  sc_memoryGet (address, &val);
-  sprintf (buff, "+%04d", val);
-  return buff;
-}
-
 void
 g_memorybox ()
 {
@@ -73,7 +66,11 @@ g_memorybox ()
       for (int j = 3; j < 63; j += 6)
         {
           mt_gotoXY (i, j);
-          write (STDERR_FILENO, g_getMem (k++), 6 * sizeof (char));
+          char buff[6];
+          int val;
+          sc_memoryGet (k++, &val);
+          sprintf (buff, "+%04d", val);
+          write (STDERR_FILENO, buff, 6 * sizeof (char));
         }
     }
 }
@@ -121,10 +118,72 @@ g_flagbox ()
 void
 g_bcbox (int *big)
 {
-  for (int i = 0; i < 6; i++)
+  int count = 0;
+  int val = 0;
+  sc_countGet (&count);
+  sc_memoryGet(count, &val);
+  int digit[2] = {big[2 * 16], big[2 * 16 + 1]};
+  bc_printbigchar (digit, BC_X, BC_START, GREEN, GREY);
+  for (int i = 3; i >= 0; i--)
     {
-      int digit[2] = {big[2 * i], big[2 * i + 1]};
-      bc_printbigchar (digit, BC_X, BC_START + i * BC_STEP, GREEN, GREY);
+      int radix = (int) pow(10, i);
+      int k = 0;
+      switch ((val / radix) % 10)
+      {
+      case 0x0:
+        k = 0;
+        break;
+      case 0x1:
+        k = 1;
+        break;
+      case 0x2:
+        k = 2;
+        break;
+      case 0x3:
+        k = 3;
+        break;
+      case 0x4:
+        k = 4;
+        break;
+      case 0x5:
+        k = 5;
+        break;
+      case 0x6:
+        k = 6;
+        break;
+      case 0x7:
+        k = 7;
+        break;
+      case 0x8:
+        k = 8;
+        break;
+      case 0x9:
+        k = 9;
+        break;
+      case 0xA:
+        k = 10;
+        break;
+      case 0xB:
+        k = 11;
+        break;
+      case 0xC:
+        k = 12;
+        break;
+      case 0xD:
+        k = 13;
+        break;
+      case 0xE:
+        k = 14;
+        break;
+      case 0xF:
+        k = 15;
+        break;
+      default:
+        k = 17;
+        break;
+      }
+      int digit[2] = {big[2 * k], big[2 * k + 1]};
+      bc_printbigchar (digit, BC_X, BC_START + (4 - i) * BC_STEP, GREEN, GREY);
     }
   mt_gotoXY (33, 0);
 }
