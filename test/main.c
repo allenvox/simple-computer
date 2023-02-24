@@ -2,9 +2,10 @@
 #define CTEST_SEGFAULT
 #define CTEST_COLOR_OK
 
-#include <ctest.h>
+#include "ctest.h"
 
-int main(int argc, const char** argv)
+int
+main (int argc, const char *argv[])
 {
-    return ctest_main(argc, argv);
+    return ctest_main (argc, argv);
 }
