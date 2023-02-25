@@ -1,7 +1,6 @@
 #include "term_gui.h"
 #include "bc.h"
 #include "msc.h"
-#include "readkey.h"
 #include "term.h"
 #include <math.h>
 #include <stdlib.h>
