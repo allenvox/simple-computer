@@ -1,5 +1,42 @@
 #include "ctest.h"
 #include "msc.h"
+#include "term.h"
+
+CTEST (clear_screen, valid)
+{
+  int result = mt_clrscr ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (go_to_XY, valid)
+{
+  int result = mt_gotoXY (2, 26);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (get_screen_size, valid)
+{
+  int rows, cols;
+  int result = mt_getscreensize (&rows, &cols);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (set_background, valid)
+{
+  int result = mt_setbgcolor (BLUE);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (set_foreground, valid)
+{
+  int result = mt_setfgcolor (BLUE);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
 
 CTEST (memory_init, valid)
 {
