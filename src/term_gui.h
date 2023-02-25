@@ -17,4 +17,3 @@ int g_flagbox ();
 int g_bcbox (int *big);
 int g_flags (char **val);
 int g_static ();
-int g_printbc (int x, int y);
