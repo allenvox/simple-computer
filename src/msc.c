@@ -151,25 +151,29 @@ sc_commandDecode (
   return 0;
 }
 
-int sc_accumSet(int value)
+int
+sc_accumSet(int value)
 {
   sc_accum = value;
   return 0;
 }
 
-int sc_accumGet(int *value)
+int
+sc_accumGet(int *value)
 {
   *value = sc_accum;
   return 0;
 }
 
-int sc_countSet(int value)
+int
+sc_countSet(int value)
 {
   sc_count = value;
   return 0;
 }
 
-int sc_countGet(int *value)
+int
+sc_countGet(int *value)
 {
   *value = sc_count;
   return 0;

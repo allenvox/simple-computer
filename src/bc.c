@@ -37,11 +37,13 @@ bc_box (int x1, int y1, int x2, int y2)
             {
               bc_printA ("j\n");
             }
-          else if ((i == 0 || i == x2 - 1) && (j > 0 && j < y2)) // horizontal line
+          else if ((i == 0 || i == x2 - 1)
+                   && (j > 0 && j < y2)) // horizontal line
             {
               bc_printA ("q");
             }
-          else if ((i > 0 && i < x2) && (j == 0 || j == y2 - 1)) // vertical line
+          else if ((i > 0 && i < x2)
+                   && (j == 0 || j == y2 - 1)) // vertical line
             {
               bc_printA ("x");
             }
@@ -55,7 +57,8 @@ bc_box (int x1, int y1, int x2, int y2)
 }
 
 int
-bc_printbigchar (int *big, int x, int y, enum colors fgcolor, enum colors bgcolor)
+bc_printbigchar (int *big, int x, int y, enum colors fgcolor,
+                 enum colors bgcolor)
 {
   mt_setbgcolor (bgcolor);
   mt_setfgcolor (fgcolor);
@@ -127,7 +130,7 @@ bc_bigcharwrite (int fd, int *big, int count)
 {
   for (int i = 0; i < count * 2; i++)
     {
-      if (write (fd, &big[i], sizeof(int)) == -1)
+      if (write (fd, &big[i], sizeof (int)) == -1)
         {
           return 1;
         }

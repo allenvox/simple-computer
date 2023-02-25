@@ -1,11 +1,11 @@
 #include "term_gui.h"
-#include "term.h"
 #include "bc.h"
 #include "msc.h"
 #include "readkey.h"
-#include <string.h>
-#include <stdlib.h>
+#include "term.h"
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 char *
 g_flags ()
@@ -48,7 +48,13 @@ g_static ()
   bc_box (13, 64, 12, 39);
   mt_gotoXY (13, 67);
   write (STDOUT_FILENO, " Keys ", 7 * sizeof (char));
-  char *str[7] = {"l - load", "s - save", "r - run", "t - step", "i - reset", "F5 - accumulator", "F6 - instructionCounter"};
+  char *str[7] = { "l - load",
+                   "s - save",
+                   "r - run",
+                   "t - step",
+                   "i - reset",
+                   "F5 - accumulator",
+                   "F6 - instructionCounter" };
   for (int i = 0; i < 7; i++)
     {
       mt_gotoXY (15 + i, 66);
@@ -111,7 +117,7 @@ void
 g_flagbox ()
 {
   mt_gotoXY (11, 79);
-  write (STDOUT_FILENO, g_flags(), 14 * sizeof (char));
+  write (STDOUT_FILENO, g_flags (), 14 * sizeof (char));
   mt_gotoXY (33, 0);
 }
 
@@ -121,67 +127,67 @@ g_bcbox (int *big)
   int count = 0;
   int val = 0;
   sc_countGet (&count);
-  sc_memoryGet(count, &val);
-  int digit[2] = {big[2 * 16], big[2 * 16 + 1]};
+  sc_memoryGet (count, &val);
+  int digit[2] = { big[2 * 16], big[2 * 16 + 1] };
   bc_printbigchar (digit, BC_X, BC_START, GREEN, GREY);
   for (int i = 3; i >= 0; i--)
     {
-      int radix = (int) pow(10, i);
+      int radix = (int)pow (10, i);
       int k = 0;
       switch ((val / radix) % 10)
-      {
-      case 0x0:
-        k = 0;
-        break;
-      case 0x1:
-        k = 1;
-        break;
-      case 0x2:
-        k = 2;
-        break;
-      case 0x3:
-        k = 3;
-        break;
-      case 0x4:
-        k = 4;
-        break;
-      case 0x5:
-        k = 5;
-        break;
-      case 0x6:
-        k = 6;
-        break;
-      case 0x7:
-        k = 7;
-        break;
-      case 0x8:
-        k = 8;
-        break;
-      case 0x9:
-        k = 9;
-        break;
-      case 0xA:
-        k = 10;
-        break;
-      case 0xB:
-        k = 11;
-        break;
-      case 0xC:
-        k = 12;
-        break;
-      case 0xD:
-        k = 13;
-        break;
-      case 0xE:
-        k = 14;
-        break;
-      case 0xF:
-        k = 15;
-        break;
-      default:
-        k = 17;
-        break;
-      }
+        {
+        case 0x0:
+          k = 0;
+          break;
+        case 0x1:
+          k = 1;
+          break;
+        case 0x2:
+          k = 2;
+          break;
+        case 0x3:
+          k = 3;
+          break;
+        case 0x4:
+          k = 4;
+          break;
+        case 0x5:
+          k = 5;
+          break;
+        case 0x6:
+          k = 6;
+          break;
+        case 0x7:
+          k = 7;
+          break;
+        case 0x8:
+          k = 8;
+          break;
+        case 0x9:
+          k = 9;
+          break;
+        case 0xA:
+          k = 10;
+          break;
+        case 0xB:
+          k = 11;
+          break;
+        case 0xC:
+          k = 12;
+          break;
+        case 0xD:
+          k = 13;
+          break;
+        case 0xE:
+          k = 14;
+          break;
+        case 0xF:
+          k = 15;
+          break;
+        default:
+          k = 17;
+          break;
+        }
       int digit[2] = {big[2 * k], big[2 * k + 1]};
       bc_printbigchar (digit, BC_X, BC_START + (4 - i) * BC_STEP, GREEN, GREY);
     }
