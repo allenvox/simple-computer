@@ -197,7 +197,7 @@ g_bcbox (int *big)
           k = 17;
           break;
         }
-      int digit[2] = {big[2 * k], big[2 * k + 1]};
+      int digit[2] = { big[2 * k], big[2 * k + 1] };
       bc_printbigchar (digit, BC_X, BC_START + (4 - i) * BC_STEP, GREEN, GREY);
     }
   mt_gotoXY (33, 0);
