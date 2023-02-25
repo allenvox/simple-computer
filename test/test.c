@@ -166,7 +166,7 @@ CTEST (bc_box, valid)
 
 CTEST (print_big_char, valid)
 {
-  int digit[2] = {0x4242423C, 0x3C424242};
+  int digit[2] = { 0x4242423C, 0x3C424242 };
   int result = bc_printbigchar (digit, 14, 60, GREEN, LIGHT_GREY);
   int expected = 0;
   ASSERT_EQUAL (expected, result);
@@ -221,7 +221,7 @@ CTEST (bc_write, valid)
 CTEST (bc_read, valid)
 {
   int count, big[36];
-  int file = open("obj/digit", O_RDONLY);
+  int file = open ("obj/digit", O_RDONLY);
   int result = bc_bigcharread (file, big, 18, &count);
   close (file);
   int expected = 0;
