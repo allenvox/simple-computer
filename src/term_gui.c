@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *
-g_flags ()
+int
+g_flags (char **val)
 {
   int flag = 0;
   sc_regGet (1, &flag);
@@ -23,10 +23,11 @@ g_flags ()
   char C = flag == 1 ? 'C' : ' ';
   char buff[14];
   sprintf (buff, "%c  %c  %c  %c  %c", F, D, A, O, C);
-  return buff;
+  *val = buff;
+  return 0;
 }
 
-void
+int
 g_static ()
 {
   bc_box (1, 1, 12, 63);
@@ -61,9 +62,10 @@ g_static ()
       write (STDOUT_FILENO, str[i], strlen (str[i]));
     }
   mt_gotoXY (33, 0);
+  return 0;
 }
 
-void
+int
 g_memorybox ()
 {
   int k = 0;
@@ -79,9 +81,10 @@ g_memorybox ()
           write (STDERR_FILENO, buff, 6 * sizeof (char));
         }
     }
+  return 0;
 }
 
-void
+int
 g_accumbox ()
 {
   mt_gotoXY (2, 80);
@@ -91,9 +94,10 @@ g_accumbox ()
   sprintf (buff, "%04d", val);
   write (STDOUT_FILENO, buff, 5 * sizeof (char));
   mt_gotoXY (33, 0);
+  return 0;
 }
 
-void
+int
 g_counterbox ()
 {
   mt_gotoXY (5, 80);
@@ -103,25 +107,30 @@ g_counterbox ()
   sprintf (buff, "%04d", val);
   write (STDOUT_FILENO, buff, 5 * sizeof (char));
   mt_gotoXY (33, 0);
+  return 0;
 }
 
-void
+int
 g_operationbox ()
 {
   mt_gotoXY (8, 79);
   write (STDOUT_FILENO, "+00 : 00", 8 * sizeof (char));
   mt_gotoXY (33, 0);
+  return 0;
 }
 
-void
+int
 g_flagbox ()
 {
   mt_gotoXY (11, 79);
-  write (STDOUT_FILENO, g_flags (), 14 * sizeof (char));
+  char *val;
+  g_flags (&val);
+  write (STDOUT_FILENO, val, 14 * sizeof (char));
   mt_gotoXY (33, 0);
+  return 0;
 }
 
-void
+int
 g_bcbox (int *big)
 {
   int count = 0;
@@ -192,4 +201,5 @@ g_bcbox (int *big)
       bc_printbigchar (digit, BC_X, BC_START + (4 - i) * BC_STEP, GREEN, GREY);
     }
   mt_gotoXY (33, 0);
+  return 0;
 }
