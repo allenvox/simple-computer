@@ -1,8 +1,8 @@
+#include "bc.h"
 #include "ctest.h"
 #include "msc.h"
 #include "term.h"
 #include "term_gui.h"
-#include "bc.h"
 
 CTEST (clear_screen, valid)
 {
@@ -174,7 +174,7 @@ CTEST (print_big_char, valid)
 
 CTEST (set_bc_pos, valid)
 {
-  int digit[2] = {0x4242423C, 0x3C424242};
+  int digit[2] = { 0x4242423C, 0x3C424242 };
   int result = bc_setbigcharpos (digit, 2, 6, 1);
   int expected = 0;
   ASSERT_EQUAL (expected, result);
@@ -183,7 +183,7 @@ CTEST (set_bc_pos, valid)
 CTEST (get_bc_pos, valid)
 {
   short int val;
-  int digit[2] = {0x4242423C, 0x3C424242};
+  int digit[2] = { 0x4242423C, 0x3C424242 };
   int result = bc_getbigcharpos (digit, 2, 6, &val);
   int expected = 0;
   ASSERT_EQUAL (expected, result);
@@ -192,27 +192,27 @@ CTEST (get_bc_pos, valid)
 CTEST (bc_write, valid)
 {
   int big[18][2] = {
-    {0x4242423C, 0x3C424242}, // 0
-    {0x48506040, 0x40404040}, // 1
-    {0x2042423C, 0x7E020418}, // 2
-    {0x3840423C, 0x3C424040}, // 3
-    {0x7E424478, 0x40404040}, // 4
-    {0x3E02027E, 0x3C424040}, // 5
-    {0x3E02423C, 0x3C424242}, // 6
-    {0x2040407E, 0x10101010}, // 7
-    {0x3C42423C, 0x3C424242}, // 8
-    {0x7C42423C, 0x3C424040}, // 9
-    {0x66663C18, 0x66667E7E}, // A
-    {0x3E66663E, 0x3E666666}, // B
-    {0x0202423C, 0x3C420202}, // C
-    {0x4444443E, 0x3E444444}, // D
-    {0x3E02027E, 0x7E020202}, // E
-    {0x1E02027E, 0x02020202}, // F
-    {0x7E181800, 0x0018187E}, // +
-    {0x00181800, 0x00181800}  // :
+    { 0x4242423C, 0x3C424242 }, // 0
+    { 0x48506040, 0x40404040 }, // 1
+    { 0x2042423C, 0x7E020418 }, // 2
+    { 0x3840423C, 0x3C424040 }, // 3
+    { 0x7E424478, 0x40404040 }, // 4
+    { 0x3E02027E, 0x3C424040 }, // 5
+    { 0x3E02423C, 0x3C424242 }, // 6
+    { 0x2040407E, 0x10101010 }, // 7
+    { 0x3C42423C, 0x3C424242 }, // 8
+    { 0x7C42423C, 0x3C424040 }, // 9
+    { 0x66663C18, 0x66667E7E }, // A
+    { 0x3E66663E, 0x3E666666 }, // B
+    { 0x0202423C, 0x3C420202 }, // C
+    { 0x4444443E, 0x3E444444 }, // D
+    { 0x3E02027E, 0x7E020202 }, // E
+    { 0x1E02027E, 0x02020202 }, // F
+    { 0x7E181800, 0x0018187E }, // +
+    { 0x00181800, 0x00181800 }  // :
   };
-  int file = open("obj/digit", O_RDWR | O_CREAT);
-  int result = bc_bigcharwrite(file, big, 18);
+  int file = open ("obj/digit", O_RDWR | O_CREAT);
+  int result = bc_bigcharwrite (file, big, 18);
   close (file);
   int expected = 0;
   ASSERT_EQUAL (expected, result);
@@ -274,24 +274,24 @@ CTEST (gui_flagbox, valid)
 CTEST (gui_bcbox, valid)
 {
   int big[18][2] = {
-    {0x4242423C, 0x3C424242}, // 0
-    {0x48506040, 0x40404040}, // 1
-    {0x2042423C, 0x7E020418}, // 2
-    {0x3840423C, 0x3C424040}, // 3
-    {0x7E424478, 0x40404040}, // 4
-    {0x3E02027E, 0x3C424040}, // 5
-    {0x3E02423C, 0x3C424242}, // 6
-    {0x2040407E, 0x10101010}, // 7
-    {0x3C42423C, 0x3C424242}, // 8
-    {0x7C42423C, 0x3C424040}, // 9
-    {0x66663C18, 0x66667E7E}, // A
-    {0x3E66663E, 0x3E666666}, // B
-    {0x0202423C, 0x3C420202}, // C
-    {0x4444443E, 0x3E444444}, // D
-    {0x3E02027E, 0x7E020202}, // E
-    {0x1E02027E, 0x02020202}, // F
-    {0x7E181800, 0x0018187E}, // +
-    {0x00181800, 0x00181800}  // :
+    { 0x4242423C, 0x3C424242 }, // 0
+    { 0x48506040, 0x40404040 }, // 1
+    { 0x2042423C, 0x7E020418 }, // 2
+    { 0x3840423C, 0x3C424040 }, // 3
+    { 0x7E424478, 0x40404040 }, // 4
+    { 0x3E02027E, 0x3C424040 }, // 5
+    { 0x3E02423C, 0x3C424242 }, // 6
+    { 0x2040407E, 0x10101010 }, // 7
+    { 0x3C42423C, 0x3C424242 }, // 8
+    { 0x7C42423C, 0x3C424040 }, // 9
+    { 0x66663C18, 0x66667E7E }, // A
+    { 0x3E66663E, 0x3E666666 }, // B
+    { 0x0202423C, 0x3C420202 }, // C
+    { 0x4444443E, 0x3E444444 }, // D
+    { 0x3E02027E, 0x7E020202 }, // E
+    { 0x1E02027E, 0x02020202 }, // F
+    { 0x7E181800, 0x0018187E }, // +
+    { 0x00181800, 0x00181800 }  // :
   };
   int result = g_bcbox (big);
   int expected = 0;

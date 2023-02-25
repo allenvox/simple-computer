@@ -1,8 +1,8 @@
-#include "term_gui.h"
 #include "bc.h"
 #include "msc.h"
 #include "readkey.h"
 #include "term.h"
+#include "term_gui.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
