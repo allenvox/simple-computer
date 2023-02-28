@@ -1,7 +1,7 @@
 #include "bc.h"
 #include "msc.h"
 #include "term.h"
-#include "term_gui.h"
+#include "tui.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

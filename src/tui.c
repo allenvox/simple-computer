@@ -1,4 +1,4 @@
-#include "term_gui.h"
+#include "tui.h"
 #include "bc.h"
 #include "msc.h"
 #include "term.h"

@@ -2,7 +2,7 @@
 #include "ctest.h"
 #include "msc.h"
 #include "term.h"
-#include "term_gui.h"
+#include "tui.h"
 
 CTEST (clear_screen, valid)
 {
@@ -297,3 +297,4 @@ CTEST (gui_bcbox, valid)
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
+
