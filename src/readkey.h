@@ -1,9 +1,5 @@
 #pragma once
 
-#include <termios.h>
-
-struct termios current, backup;
-
 enum keys
 {
   KEY_S,
@@ -12,7 +8,7 @@ enum keys
   KEY_T,
   KEY_I,
   KEY_F5,
-  KEY_F6 ,
+  KEY_F6,
   KEY_UP,
   KEY_DOWN,
   KEY_RIGHT,

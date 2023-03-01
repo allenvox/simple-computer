@@ -1,7 +1,10 @@
 #include "readkey.h"
 #include "term.h"
-#include <unistd.h>
 #include <string.h>
+#include <termios.h>
+#include <unistd.h>
+
+struct termios current, backup;
 
 int
 rk_readkey(enum keys *key)
