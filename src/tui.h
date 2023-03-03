@@ -17,3 +17,7 @@ int g_flagbox ();
 int g_bcbox (int *big);
 int g_flags (char **val);
 int g_static ();
+int g_loadmemory();
+int g_init (int *big);
+int g_savememory();
+int g_interface (int *big);
