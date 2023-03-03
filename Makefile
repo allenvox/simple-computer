@@ -19,3 +19,7 @@ test: bin/test
 bin/test: test/*.c lib/bc.a lib/msc.a lib/readkey.a lib/tui.a lib/term.a
 	$(DIRGUARD)
 	gcc -Wall -Wextra -I src -MMD -I thirdparty -o $@ $^ -lm
+
+.PHONY: clean
+clean:
+	rm -rf bin/ lib/ obj/
