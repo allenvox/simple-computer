@@ -1,6 +1,7 @@
 #include "bc.h"
 #include "ctest.h"
 #include "msc.h"
+#include "readkey.h"
 #include "term.h"
 #include "tui.h"
 
@@ -298,3 +299,32 @@ CTEST (gui_bcbox, valid)
   ASSERT_EQUAL (expected, result);
 }
 
+CTEST (readkey, valid)
+{
+  enum keys key = KEY_DEFAULT;
+  int result = rk_readkey (&key);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (save_terminal, valid)
+{
+  int result = rk_mytermsave ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (restore_terminal, valid)
+{
+  int result = rk_mytermrestore ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (terminal_regime, valid)
+{
+  int result = rk_mytermregime (0, 0, 1, 0, 1);
+  int expected = 0;
+  rk_mytermrestore ();
+  ASSERT_EQUAL (expected, result);
+}
