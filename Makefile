@@ -6,6 +6,10 @@ bin/simplecomputer: src/main.c lib/bc.a lib/msc.a lib/readkey.a lib/tui.a lib/te
 	$(DIRGUARD)
 	gcc -Wall -Wextra -I src -o $@ $^ -lm
 
+lib/tui.a: obj/tui.o obj/bc.o
+	$(DIRGUARD)
+	ar rcs $@ $^
+
 lib/%.a: obj/%.o
 	$(DIRGUARD)
 	ar rcs $@ $<
