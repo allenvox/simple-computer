@@ -229,7 +229,7 @@ CTEST (bc_read, valid)
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_static, valid)
+CTEST (tui_static, valid)
 {
   mt_clrscr ();
   int result = g_static ();
@@ -237,42 +237,42 @@ CTEST (gui_static, valid)
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_memorybox, valid)
+CTEST (tui_memorybox, valid)
 {
   int result = g_memorybox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_accumbox, valid)
+CTEST (tui_accumbox, valid)
 {
   int result = g_accumbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_counterbox, valid)
+CTEST (tui_counterbox, valid)
 {
   int result = g_counterbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_operationbox, valid)
+CTEST (tui_operationbox, valid)
 {
   int result = g_operationbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_flagbox, valid)
+CTEST (tui_flagbox, valid)
 {
   int result = g_flagbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (gui_bcbox, valid)
+CTEST (tui_bcbox, valid)
 {
   int big[18][2] = {
     { 0x4242423C, 0x3C424242 }, // 0
