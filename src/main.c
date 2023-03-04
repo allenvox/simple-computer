@@ -1,8 +1,8 @@
 #include "bc.h"
 #include "msc.h"
+#include "readkey.h"
 #include "term.h"
 #include "tui.h"
-#include "readkey.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

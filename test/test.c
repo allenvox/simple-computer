@@ -303,7 +303,7 @@ CTEST (readkey, valid)
 {
   enum keys key = KEY_DEFAULT;
   int result = rk_readkey (&key);
-  printf("| key is %d ", key);
+  printf ("| key is %d ", key);
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }

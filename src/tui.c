@@ -1,8 +1,8 @@
 #include "tui.h"
 #include "bc.h"
 #include "msc.h"
-#include "term.h"
 #include "readkey.h"
+#include "term.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -205,7 +205,7 @@ g_bcbox (int *big)
 }
 
 int
-g_loadmemory(void)
+g_loadmemory (void)
 {
   bc_box (6, 20, 3, 26);
   mt_gotoXY (6, 24);
@@ -245,7 +245,7 @@ g_loadmemory(void)
 }
 
 int
-g_savememory(void)
+g_savememory (void)
 {
   bc_box (6, 20, 3, 26);
   mt_gotoXY (6, 24);
@@ -288,11 +288,12 @@ g_init (int *big)
 }
 
 int
-g_setmemory(int x, int y)
+g_setmemory (int x, int y)
 {
   bc_box (6, 20, 3, 26);
   mt_gotoXY (6, 24);
-  write (STDOUT_FILENO, " Set memory value to \n", strlen (" Set memory value to \n"));
+  write (STDOUT_FILENO, " Set memory value to \n",
+         strlen (" Set memory value to \n"));
   char buff[5][1];
   mt_gotoXY (7, 21);
   for (int i = 0; i < 4; i++)
@@ -328,7 +329,7 @@ g_printmem (int *x, int *y)
     {
       *y = 9;
     }
-  mt_gotoXY(X_START + (*x), Y_START + (*y) * Y_STEP);
+  mt_gotoXY (X_START + (*x), Y_START + (*y) * Y_STEP);
   char buff[6];
   int address = (*x) * 10 + (*y);
   sc_countSet (address);
@@ -346,7 +347,7 @@ g_interface (int *big)
 {
   int exit = 0, x = 0, y = 0, cnt = 0;
   mt_setbgcolor (GREY);
-  g_static();
+  g_static ();
   while (!exit)
     {
       enum keys key = KEY_DEFAULT;
@@ -390,14 +391,6 @@ g_interface (int *big)
         default:
           break;
         }
-//        if (key == KEY_F5)
-//            set_accum();
-//        if (key == KEY_F6)
-//            set_instcnt();
-//        if (key == KEY_R)
-//            run(&x, &y);
-//        if (key == KEY_T)
-//            step(&x, &y);
       if (cnt == 5)
         {
           g_static ();
