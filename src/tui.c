@@ -207,25 +207,39 @@ g_bcbox (int *big)
 int
 g_loadmemory(void)
 {
-  bc_box (20, 6, 20, 5);
-  mt_gotoXY (24, 7);
-  write (1, "Load\n", strlen ("Load\n"));
-  char tmp[255] = "\0";
-  mt_gotoXY (21, 9);
-  read (1, tmp, 255);
-  tmp[strlen (tmp) - 1] = '\0';
-  if (sc_memoryLoad (tmp))
+  bc_box (6, 20, 3, 26);
+  mt_gotoXY (6, 24);
+  write (STDOUT_FILENO, " Load from \n", strlen (" Load from \n"));
+  char buff[20][1];
+  mt_gotoXY (7, 21);
+  for (int i = 0; i < 20; i++)
     {
-      bc_box (20, 6, 20, 5);
-      mt_gotoXY (23, 7);
-      write (1, "Failed to open\n", strlen ("Failed to open\n"));
-      mt_gotoXY (29, 9);
-      mt_setbgcolor (GREY);
-      write (1, "OK", strlen ("OK"));
-      mt_setbgcolor (GREEN);
-      mt_gotoXY (30, 9);
-      read (1, tmp, 1);
+      mt_gotoXY (7, 21 + i);
+      read (STDOUT_FILENO, buff[i], 1);
+      if (buff[i][0] == '\n')
+        {
+          break;
+        }
+      mt_gotoXY (7, 21);
+      write (STDERR_FILENO, buff, strlen (buff));
     }
+  buff[strlen (buff) - 1][0] = '\0';
+  if (sc_memoryLoad (buff) != 0)
+    {
+      bc_box (6, 20, 3, 26);
+      mt_gotoXY (6, 24);
+      mt_setbgcolor (RED);
+      write (STDOUT_FILENO, " Fail! \n", strlen (" Fail! \n"));
+    }
+  else
+    {
+      bc_box (6, 20, 3, 26);
+      mt_gotoXY (6, 24);
+      mt_setbgcolor (GREEN);
+      write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
+    }
+  mt_setbgcolor (GREY);
+  read (STDOUT_FILENO, NULL, 1);
   g_static ();
   return 0;
 }
@@ -233,25 +247,30 @@ g_loadmemory(void)
 int
 g_savememory(void)
 {
-  bc_box (20, 6, 20, 5);
-  mt_gotoXY (23, 7);
-  write (1, "Save to\n", strlen ("Save to\n"));
-  char tmp[255] = "\0";
-  mt_gotoXY (21, 9);
-  read (1, tmp, 255);
-  tmp[strlen (tmp) - 1] = '\0';
-  if (sc_memorySave (tmp))
+  bc_box (6, 20, 3, 26);
+  mt_gotoXY (6, 24);
+  write (STDOUT_FILENO, " Save to \n", strlen (" Save to \n"));
+  char buff[20][1];
+  mt_gotoXY (7, 21);
+  for (int i = 0; i < 20; i++)
     {
-      bc_box (20, 6, 20, 5);
-      mt_gotoXY (23, 7);
-      write (1, "Failed to save\n", strlen ("Failed to save\n"));
-      mt_gotoXY (29, 9);
-      mt_setbgcolor (YELLOW);
-      write (1, "OK", strlen ("OK"));
-      mt_setbgcolor (GREEN);
-      mt_gotoXY (30, 9);
-      read (1, tmp, 1);
+      mt_gotoXY (7, 21 + i);
+      read (STDOUT_FILENO, buff[i], 1);
+      if (buff[i][0] == '\n')
+        {
+          break;
+        }
+      mt_gotoXY (7, 21);
+      write (STDERR_FILENO, buff, strlen (buff));
     }
+  buff[strlen (buff) - 1][0] = '\0';
+  sc_memorySave (buff);
+  bc_box (6, 20, 3, 26);
+  mt_gotoXY (6, 24);
+  mt_setbgcolor (GREEN);
+  write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
+  mt_setbgcolor (GREY);
+  read (STDOUT_FILENO, NULL, 1);
   g_static ();
   return 0;
 }
@@ -273,11 +292,21 @@ g_setmemory(int x, int y)
 {
   bc_box (6, 20, 3, 26);
   mt_gotoXY (6, 24);
-  write (STDOUT_FILENO, "Set memory value to\n", strlen ("Set memory value to\n"));
-  char buff[11] = "\0";
+  write (STDOUT_FILENO, " Set memory value to \n", strlen (" Set memory value to \n"));
+  char buff[5][1];
   mt_gotoXY (7, 21);
-  read (1, buff, 10);
-  buff[strlen (buff) - 1] = '\0';
+  for (int i = 0; i < 4; i++)
+    {
+      mt_gotoXY (7, 21 + i);
+      read (STDOUT_FILENO, buff[i], 1);
+      if (buff[i][0] == '\n')
+        {
+          break;
+        }
+      mt_gotoXY (7, 21);
+      write (STDERR_FILENO, buff, strlen (buff));
+    }
+  buff[4][0] = '\0';
   int val = atoi (buff);
   sc_memorySet (x * 10 + y, val);
   g_static ();
