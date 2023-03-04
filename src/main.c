@@ -42,8 +42,8 @@ main ()
   sc_regSet (2, 1);
   sc_regSet (4, 1);
   sc_regSet (16, 1);
-  sc_accumSet (312);
-  sc_countSet (96);
+  sc_accumSet (9999);
+  sc_countSet (0);
   g_interface (big);
   rk_mytermrestore ();
   return 0;
