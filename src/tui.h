@@ -9,15 +9,16 @@
 #define Y_START 3
 #define Y_STEP 6
 
-int g_memorybox ();
-int g_accumbox ();
-int g_counterbox ();
-int g_operationbox ();
-int g_flagbox ();
+int g_memorybox (void);
+int g_accumbox (void);
+int g_counterbox (void);
+int g_operationbox (void);
+int g_flagbox (void);
 int g_bcbox (int *big);
 int g_flags (char **val);
-int g_static ();
-int g_loadmemory();
+int g_static (void);
+int g_loadmemory (void);
 int g_init (int *big);
-int g_savememory();
+int g_savememory (void);
+int g_printmem (int *x, int *y);
 int g_interface (int *big);
