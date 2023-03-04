@@ -7,67 +7,77 @@
 struct termios current, backup;
 
 int
-rk_readkey(enum keys *key)
+rk_readkey (enum keys *key)
 {
-  if (rk_mytermregime (0, 0, 1, 0, 1))
+	char buf[16];
+	int numRead;
+	if (tcgetattr(STDOUT_FILENO, &backup) != 0)
+	  {
+		  return -1;
+	  }
+	if (rk_mytermregime(0, 0, 1, 0, 1) != 0)
+	  {
+		  return -1;
+	  }
+	numRead = read(STDOUT_FILENO, buf, 15);
+	buf[numRead] = '\0';
+	if (strcmp(buf, "l") == 0)
+	  {
+		  *key = KEY_L;
+	  }
+	else if (strcmp(buf, "s") == 0)
+	  {
+		  *key = KEY_S;
+	  }
+	else if (strcmp(buf, "r") == 0)
+	  {
+		  *key = KEY_R;
+	  }
+  else if (strcmp(buf, "q") == 0)
+	  {
+		  *key = KEY_ESCAPE;
+	  }
+	else if (strcmp(buf, "t") == 0)
+	  {
+		  *key = KEY_T;
+	  }
+	else if (strcmp(buf, "i") == 0)
+	  {
+		  *key = KEY_I;
+	  }
+	else if ((strcmp(buf, "\n") == 0) || (strcmp(buf, "\r") == 0))
+	  {
+		  *key = KEY_ENTER;
+	  }
+	else if ((strcmp(buf, "\E[15~") == 0) || (strcmp(buf, "\E[[E") == 0))
+	  {
+		  *key = KEY_F5;
+	  }
+	else if (strcmp(buf, "\E[17~") == 0)
+	  {
+		  *key = KEY_F6;
+	  }
+	else if (strcmp(buf, "\E[A") == 0)
+	  {
+		  *key = KEY_UP;
+	  }
+	else if (strcmp(buf, "\E[B") == 0)
+	  {
+		  *key = KEY_DOWN;
+	  }
+	else if (strcmp(buf, "\E[C") == 0)
+	  {
+		  *key = KEY_RIGHT;
+	  }
+	else if (strcmp(buf, "\E[D") == 0)
+	  {
+		  *key = KEY_LEFT;
+	  }
+	if (tcsetattr(STDOUT_FILENO, TCSANOW, &backup) != 0)
     {
-      return 1;
+		  return -1;
     }
-  char buf[10] = "\0";
-  read (STDIN_FILENO, buf, 10);
-  if (!strcmp (buf, "s"))
-    {
-      *key = KEY_S;
-    }
-  if (!strcmp (buf, "l"))
-    {
-      *key = KEY_L;
-    }
-  if (!strcmp (buf, "r"))
-    {
-      *key = KEY_S;
-    }
-  if (!strcmp (buf, "t"))
-    {
-      *key = KEY_T;
-    }
-  if (!strcmp (buf, "i"))
-    {
-      *key = KEY_I;
-    }
-  if (!strcmp (buf, "\E[[E"))
-    {
-      *key = KEY_F5;
-    }
-  if (!strcmp (buf, "\E[17~"))
-    {
-      *key = KEY_F6;
-    }
-  if (!strcmp (buf, "\E[A"))
-    {
-      *key = KEY_UP;
-    }
-  if (!strcmp (buf, "\E[B"))
-    {
-      *key = KEY_DOWN;
-    }
-  if (!strcmp (buf, "\E[C"))
-    {
-      *key = KEY_RIGHT;
-    }
-  if (!strcmp (buf, "\E[D"))
-    {
-      *key = KEY_LEFT;
-    }
-  if (strcmp (buf, "\n"))
-    {
-      *key = KEY_ENTER;
-    }
-  if (tcsetattr (STDOUT_FILENO, TCSANOW, &current))
-    {
-      return 1;
-    }
-  return 0;
+	return 0;
 }
 
 int
