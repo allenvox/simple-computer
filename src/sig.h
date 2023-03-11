@@ -1,5 +1,9 @@
 #pragma once
 
-int sig_setSignals ();
-int sig_timerHandler (int sig);
-int sig_userSignal (int sig);
+#include "msc.h"
+#include <signal.h>
+#include <unistd.h>
+
+int sig_handle_reset ();
+int sig_handle_alarm ();
+int sig_set ();

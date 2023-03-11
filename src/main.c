@@ -20,7 +20,7 @@ main ()
   sc_regSet (FLAG_IGNORE, 1);
   sc_accumSet (9999);
   sc_countSet (0);
-  sig_setSignals ();
+  sig_set ();
 
   rk_mytermsave ();
   rk_mytermregime (0, 0, 1, 0, 1);
