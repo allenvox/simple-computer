@@ -8,6 +8,7 @@
 #define MEMSIZE 100
 
 // flags
+#define FLAG_IGNORE 32
 #define FLAG_WRONG_COMMAND 16
 #define FLAG_WRONG_OPERAND 8
 #define FLAG_WRONG_ADDRESS 4
