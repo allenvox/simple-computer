@@ -21,4 +21,4 @@ int g_loadmemory (void);
 int g_init (int *big);
 int g_savememory (void);
 int g_printmem (int *x, int *y);
-int g_interface (int *big);
+int g_interface (void);
