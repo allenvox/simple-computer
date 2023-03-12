@@ -16,13 +16,12 @@ int sig_handle_alarm ()
   int value;
   sc_countGet (&value);
   sc_countSet (value + 1);
-  g_counterbox ();
   int x = (value + 1) / 10;
   int y = (value + 1) % 10;
-  g_printmem (&x, &y);
-  g_bcbox ();
+  g_highlightmemory (x, y);
   alarm (1);
   sc_regSet (FLAG_IGNORE, 0);
+  g_drawboxes ();
   return 0;
 }
 
