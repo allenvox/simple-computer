@@ -16,7 +16,7 @@ g_writeflags (char **val)
   char C = flag == 1 ? 'C' : ' ';
   sc_regGet (32, &flag);
   char I = flag == 1 ? 'I' : ' ';
-  char buff[24] = {0};
+  char buff[24] = { 0 };
   sprintf (buff, "%c  %c  %c  %c  %c  %c\0", F, D, A, O, C, I);
   *val = buff;
   return 0;
@@ -320,7 +320,7 @@ g_drawoperationbox (void)
   sc_countGet (&address);
   char buff[6];
   g_getunit (address, &buff);
-  char result [7];
+  char result[7];
   sprintf (result, "%c%c%c:%c%c", buff[0], buff[1], buff[2], buff[3], buff[4]);
   write (STDOUT_FILENO, result, 7 * sizeof (char));
   mt_gotoXY (33, 0);

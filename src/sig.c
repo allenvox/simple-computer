@@ -11,7 +11,8 @@ sig_handle_reset ()
   return 0;
 }
 
-int sig_handle_alarm ()
+int
+sig_handle_alarm ()
 {
   g_drawboxes ();
   int value;

@@ -3,8 +3,8 @@
 #include "bc.h"
 #include "msc.h"
 #include "readkey.h"
-#include "term.h"
 #include "sig.h"
+#include "term.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
