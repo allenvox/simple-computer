@@ -346,7 +346,7 @@ g_setmemory (int x, int y)
 }
 
 int
-g_getunit (int address, char **buff)
+g_getunit (int address, char *buff)
 {
   int val, command, operand;
   sc_memoryGet (address, &val);
@@ -361,7 +361,7 @@ g_getunit (int address, char **buff)
     {
       temp[0] = '+';
     }
-  strcpy (*buff, temp);
+  strcpy (buff, temp);
   return 0;
 }
 
