@@ -229,45 +229,45 @@ CTEST (bc_read, valid)
   ASSERT_EQUAL (expected, result);
 }
 
-CTEST (tui_static, valid)
+CTEST (tui_borders, valid)
 {
   mt_clrscr ();
-  int result = g_static ();
+  int result = g_drawborders ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
 CTEST (tui_memorybox, valid)
 {
-  int result = g_memorybox ();
+  int result = g_drawmemorybox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
 CTEST (tui_accumbox, valid)
 {
-  int result = g_accumbox ();
+  int result = g_drawaccumbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
 CTEST (tui_counterbox, valid)
 {
-  int result = g_counterbox ();
+  int result = g_drawcounterbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
 CTEST (tui_operationbox, valid)
 {
-  int result = g_operationbox ();
+  int result = g_drawoperationbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
 
 CTEST (tui_flagbox, valid)
 {
-  int result = g_flagbox ();
+  int result = g_drawflagbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
@@ -294,7 +294,7 @@ CTEST (tui_bcbox, valid)
     { 0x7E181800, 0x0018187E }, // +
     { 0x00181800, 0x00181800 }  // :
   };
-  int result = g_bcbox (big);
+  int result = g_drawbcbox ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
