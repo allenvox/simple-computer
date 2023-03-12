@@ -147,22 +147,22 @@ g_drawbcbox ()
         case '9':
           k = 9;
           break;
-        case 'A':
+        case 'a':
           k = 10;
           break;
-        case 'B':
+        case 'b':
           k = 11;
           break;
-        case 'C':
+        case 'c':
           k = 12;
           break;
-        case 'D':
+        case 'd':
           k = 13;
           break;
-        case 'E':
+        case 'e':
           k = 14;
           break;
-        case 'F':
+        case 'f':
           k = 15;
           break;
         case '+':
@@ -176,73 +176,6 @@ g_drawbcbox ()
       digit[1] = big[k][1];
       bc_printbigchar (digit, BC_X, BC_START + i * BC_STEP, GREEN, GREY);
     }
-  /*
-  digit[0] = big[16][0];
-  digit[1] = big[16][1];
-  bc_printbigchar (digit, BC_X, BC_START, GREEN, GREY);
-  for (int i = 3; i >= 0; i--)
-    {
-      int radix = (int)pow (10, i);
-      int k = 0;
-      switch ((val / radix) % 10)
-        {
-        case 0x0:
-          k = 0;
-          break;
-        case 0x1:
-          k = 1;
-          break;
-        case 0x2:
-          k = 2;
-          break;
-        case 0x3:
-          k = 3;
-          break;
-        case 0x4:
-          k = 4;
-          break;
-        case 0x5:
-          k = 5;
-          break;
-        case 0x6:
-          k = 6;
-          break;
-        case 0x7:
-          k = 7;
-          break;
-        case 0x8:
-          k = 8;
-          break;
-        case 0x9:
-          k = 9;
-          break;
-        case 0xA:
-          k = 10;
-          break;
-        case 0xB:
-          k = 11;
-          break;
-        case 0xC:
-          k = 12;
-          break;
-        case 0xD:
-          k = 13;
-          break;
-        case 0xE:
-          k = 14;
-          break;
-        case 0xF:
-          k = 15;
-          break;
-        default:
-          k = 17;
-          break;
-        }
-      digit[0] = big[k][0];
-      digit[1] = big[k][1];
-      bc_printbigchar (digit, BC_X, BC_START + (4 - i) * BC_STEP, GREEN, GREY);
-    }
-  */
   mt_gotoXY (33, 0);
   return 0;
 }
@@ -369,16 +302,6 @@ int
 g_highlightmemory (int x, int y)
 {
   g_drawmemorybox ();
-  x %= 10;
-  y %= 10;
-  if (x == -1)
-    {
-      x = 9;
-    }
-  if (y == -1)
-    {
-      y = 9;
-    }
   int address = x * 10 + y;
   char buff[6];
   g_getunit (address, &buff);
@@ -460,7 +383,6 @@ g_interface ()
       x = count / 10;
       y = count % 10;
       g_highlightmemory (x, y);
-      g_drawboxes ();
       enum keys key = KEY_DEFAULT;
       rk_readkey (&key);
       switch (key)
@@ -507,6 +429,15 @@ g_interface ()
           g_drawborders ();
           frame = 0;
         }
+      if (x == -1)
+        {
+          x = 9;
+        }
+      if (y == -1)
+        {
+          y = 9;
+        }
+      sc_countSet (x * 10 + y);
       frame++;
     }
   return 0;
