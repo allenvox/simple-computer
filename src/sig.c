@@ -20,6 +20,7 @@ int sig_handle_alarm ()
   int x = (value + 1) / 10;
   int y = (value + 1) % 10;
   g_highlightmemory (x, y);
+  g_drawbcbox ();
   alarm (1);
   sc_regSet (FLAG_IGNORE, 0);
   return 0;
