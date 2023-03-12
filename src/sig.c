@@ -13,6 +13,7 @@ sig_handle_reset ()
 
 int sig_handle_alarm ()
 {
+  g_drawboxes ();
   int value;
   sc_countGet (&value);
   sc_countSet (value + 1);
@@ -21,7 +22,6 @@ int sig_handle_alarm ()
   g_highlightmemory (x, y);
   alarm (1);
   sc_regSet (FLAG_IGNORE, 0);
-  g_drawboxes ();
   return 0;
 }
 
