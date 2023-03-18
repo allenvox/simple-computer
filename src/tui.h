@@ -31,5 +31,5 @@ int g_highlightmemory (int x, int y);
 int g_drawoperationbox (void);
 int g_drawcounterbox (void);
 int g_drawmemorybox (void);
-int g_drawboxes ();
-int g_interface ();
+int g_drawboxes (void);
+int g_interface (void);
