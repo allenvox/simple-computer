@@ -2,6 +2,7 @@
 #include "ctest.h"
 #include "msc.h"
 #include "readkey.h"
+#include "sig.h"
 #include "term.h"
 #include "tui.h"
 
@@ -327,5 +328,26 @@ CTEST (terminal_regime, valid)
   int result = rk_mytermregime (0, 0, 1, 0, 1);
   int expected = 0;
   rk_mytermrestore ();
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_handle_reset, valid)
+{
+  int result = sig_handle_reset ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_handle_alarm, valid)
+{
+  int result = sig_handle_alarm ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_set, valid)
+{
+  int result = sig_set ();
+  int expected = 0;
   ASSERT_EQUAL (expected, result);
 }

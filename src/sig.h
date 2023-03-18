@@ -4,6 +4,6 @@
 #include <signal.h>
 #include <unistd.h>
 
-int sig_handle_reset ();
-int sig_handle_alarm ();
-int sig_set ();
+int sig_handle_reset (void);
+int sig_handle_alarm (void);
+int sig_set (void);
