@@ -3,7 +3,7 @@
 int
 ALU (int command, int operand)
 {
-  int tmp, accum;
+  int tmp, accum, a, b;
   sc_memoryGet (operand, &tmp);
   sc_accumGet (&accum);
   switch (command)
@@ -27,8 +27,8 @@ ALU (int command, int operand)
         sc_accumSet (accum * tmp);
 		break;
 	  case 0x52: // conjunction
-		int a = accum;
-		int b = tmp;
+		a = accum;
+		b = tmp;
 		for (int i = 0; i < 8; i++)
 		  {
 			if ((a & (1 << i)) & (b & (1 << i)))
