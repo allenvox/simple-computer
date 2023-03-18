@@ -1,8 +1,4 @@
 #include "readkey.h"
-#include "term.h"
-#include <string.h>
-#include <termios.h>
-#include <unistd.h>
 
 struct termios current, backup;
 
@@ -35,7 +31,7 @@ rk_readkey (enum keys *key)
     }
   else if (strcmp (buff, "q") == 0)
     {
-      *key = KEY_ESCAPE;
+      *key = KEY_Q;
     }
   else if (strcmp (buff, "t") == 0)
     {

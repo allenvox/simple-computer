@@ -168,6 +168,10 @@ sc_accumGet (int *value)
 int
 sc_countSet (int value)
 {
+  if (value < 0 || value > 99)
+    {
+      value = 0;
+    }
   sc_count = value;
   return 0;
 }

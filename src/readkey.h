@@ -1,5 +1,10 @@
 #pragma once
 
+#include "term.h"
+#include <string.h>
+#include <termios.h>
+#include <unistd.h>
+
 enum keys
 {
   KEY_S,
@@ -14,7 +19,7 @@ enum keys
   KEY_RIGHT,
   KEY_LEFT,
   KEY_ENTER,
-  KEY_ESCAPE,
+  KEY_Q,
   KEY_DEFAULT,
 };
 
