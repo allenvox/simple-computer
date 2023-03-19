@@ -1,6 +1,7 @@
 #include "alu.h"
 #include "bc.h"
 #include "ctest.h"
+#include "cu.h"
 #include "msc.h"
 #include "readkey.h"
 #include "sig.h"
