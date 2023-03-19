@@ -1,3 +1,4 @@
+#include "alu.h"
 #include "bc.h"
 #include "ctest.h"
 #include "msc.h"
@@ -348,6 +349,83 @@ CTEST (sig_handle_alarm, valid)
 CTEST (sig_set, valid)
 {
   int result = sig_set ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (alu, valid)
+{
+  int result = ALU (0x30, 1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_read, valid)
+{
+  int result = READ (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_write, valid)
+{
+  int result = WRITE (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_load, valid)
+{
+  int result = LOAD (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_store, valid)
+{
+  int result = STORE (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jump, valid)
+{
+  int result = JUMP (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jneg, valid)
+{
+  int result = JNEG (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jz, valid)
+{
+  int result = JZ (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_halt, valid)
+{
+  int result = HALT ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jns, valid)
+{
+  int result = JNS (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_cu, valid)
+{
+  int result = CU ();
   int expected = 0;
   ASSERT_EQUAL (expected, result);
 }
