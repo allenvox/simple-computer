@@ -30,3 +30,5 @@ int mt_setfgcolor (enum colors color); // sets a background color for all rows
                                        // and cols, entire terminal
 int mt_setbgcolor (
     enum colors color); // sets a background color only for upcoming characters
+int mt_readtext (char *text, int size);
+int mt_printtext (char *text);
