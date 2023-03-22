@@ -183,34 +183,30 @@ g_drawbcbox ()
 int
 g_loadmemory (void)
 {
-  bc_box (6, 20, 3, 26);
-  mt_gotoXY (6, 24);
-  write (STDOUT_FILENO, " Load from \n", strlen (" Load from \n"));
+  mt_gotoXY (25, 1);
+  write (STDOUT_FILENO, "Load from file:>", strlen ("Load from file:>"));
   char buff[20][1];
-  mt_gotoXY (7, 21);
+  mt_gotoXY (25, 18);
   for (int i = 0; i < 20; i++)
     {
-      mt_gotoXY (7, 21 + i);
+      mt_gotoXY (25, 18 + i);
       read (STDOUT_FILENO, buff[i], 1);
       if (buff[i][0] == '\n')
         {
           break;
         }
-      mt_gotoXY (7, 21);
+      mt_gotoXY (25, 18);
       write (STDERR_FILENO, buff, strlen (buff));
     }
   buff[strlen (buff) - 1][0] = '\0';
+  mt_gotoXY (26, 1);
   if (sc_memoryLoad (buff) != 0)
     {
-      bc_box (6, 20, 3, 26);
-      mt_gotoXY (6, 24);
       mt_setbgcolor (RED);
       write (STDOUT_FILENO, " Fail! \n", strlen (" Fail! \n"));
     }
   else
     {
-      bc_box (6, 20, 3, 26);
-      mt_gotoXY (6, 24);
       mt_setbgcolor (GREEN);
       write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
     }
@@ -223,26 +219,24 @@ g_loadmemory (void)
 int
 g_savememory (void)
 {
-  bc_box (6, 20, 3, 26);
-  mt_gotoXY (6, 24);
-  write (STDOUT_FILENO, " Save to \n", strlen (" Save to \n"));
+  mt_gotoXY (25, 1);
+  write (STDOUT_FILENO, "Save to:>", strlen ("Save to:>"));
   char buff[20][1];
-  mt_gotoXY (7, 21);
+  mt_gotoXY (25, 11);
   for (int i = 0; i < 20; i++)
     {
-      mt_gotoXY (7, 21 + i);
+      mt_gotoXY (25, 12 + i);
       read (STDOUT_FILENO, buff[i], 1);
       if (buff[i][0] == '\n')
         {
           break;
         }
-      mt_gotoXY (7, 21);
+      mt_gotoXY (25, 12);
       write (STDERR_FILENO, buff, strlen (buff));
     }
   buff[strlen (buff) - 1][0] = '\0';
   sc_memorySave (buff);
-  bc_box (6, 20, 3, 26);
-  mt_gotoXY (6, 24);
+  mt_gotoXY (26, 1);
   mt_setbgcolor (GREEN);
   write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
   mt_setbgcolor (GREY);
@@ -254,21 +248,19 @@ g_savememory (void)
 int
 g_setmemory (int x, int y)
 {
-  bc_box (6, 20, 3, 26);
-  mt_gotoXY (6, 24);
-  write (STDOUT_FILENO, " Set memory value to \n",
-         strlen (" Set memory value to \n"));
+  mt_gotoXY (25, 1);
+  write (STDOUT_FILENO, "Set memory value to:>",
+         strlen ("Set memory value to:>"));
   char buff[5][1];
-  mt_gotoXY (7, 21);
   for (int i = 0; i < 4; i++)
     {
-      mt_gotoXY (7, 21 + i);
+      mt_gotoXY (25, 23 + i);
       read (STDOUT_FILENO, buff[i], 1);
       if (buff[i][0] == '\n')
         {
           break;
         }
-      mt_gotoXY (7, 21);
+      mt_gotoXY (25, 23);
       write (STDERR_FILENO, buff, strlen (buff));
     }
   buff[4][0] = '\0';
@@ -420,6 +412,9 @@ g_interface ()
           sc_regGet (FLAG_IGNORE, &flag);
           sc_regSet (FLAG_IGNORE, !flag);
           alarm (flag);
+          break;
+        case KEY_T:
+
           break;
         default:
           break;
