@@ -1,6 +1,7 @@
 #include "translator.h"
 
-void stack_push (char data, node** top)
+void
+stack_push (char data, node** top)
 {
   node* tmp = (node*)malloc (sizeof(node));
   tmp->data = data;
@@ -8,7 +9,8 @@ void stack_push (char data, node** top)
   *top = tmp;
 }
 
-char stack_pop (node** top)
+char
+stack_pop (node** top)
 {
   node* tmp;
   char d;
@@ -26,7 +28,8 @@ char stack_pop (node** top)
     }
 }
 
-char stack_top (node* top)
+char
+stack_top (node* top)
 {
   if (top != NULL)
     {
@@ -34,7 +37,8 @@ char stack_top (node* top)
     }
 }
 
-int checkPriority (char sign)
+int
+checkPriority (char sign)
 {
   switch (sign)
     {
@@ -50,7 +54,8 @@ int checkPriority (char sign)
     }
 }
 
-char* translate (char* inf, char* rpn)
+char*
+translate (char* inf, char* rpn)
 {
   //char rpn[255] = "\0";
   node* root = NULL;
