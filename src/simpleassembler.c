@@ -10,9 +10,10 @@
 
 FILE *input = NULL;
 
-void load_file (const char* filename)
+void
+load_file (const char* filename)
 {
-  if((input = fopen (filename, "r")) == NULL)
+  if ((input = fopen (filename, "r")) == NULL)
 	{
 	  fprintf (stderr, "Can't open file: no such file.\n");
 	  exit (EXIT_FAILURE);
@@ -20,20 +21,21 @@ void load_file (const char* filename)
   return;
 }
 
-void translation (const char* filename)
+void
+translation (const char* filename)
 {
-  for(int i = 0; !feof (input); i++)
+  for (int i = 0; !feof (input); i++)
 	{
 	  char line[255];
-	  if(!fgets (line, 255, input))
+	  if (!fgets (line, 255, input))
 		{
-		  if(feof (input))
+		  if (feof (input))
 			{
 				break;
 			}
 		  else
 			{
-				fprintf(stderr, "Line %d: can't read line from file.\n", i++);
+				fprintf (stderr, "Line %d: can't read line from file.\n", i++);
 				break;
 			}
 		}
@@ -43,28 +45,24 @@ void translation (const char* filename)
 	  int num_of_cmd = 0;
 	  int operand = 0;
 	  int address = 0;
-	
-	  char *ptr = strtok(line, " ");
+	  char *ptr = strtok (line, " ");
 	  addr = ptr;
-	  ptr = strtok(NULL, " ");
+	  ptr = strtok (NULL, " ");
 	  command = ptr;
 	  ptr = strtok (NULL, " +");
 	  oper = ptr;
 	  address = atoi (addr);
 	  ptr = strtok (NULL," ");
-
 	  if (ptr != NULL && ptr[0] != ';')
 		{
 		  fprintf (stderr, "Line %d: unexpected symbols.\n", ++i);
 		  break;
 		}
-		
-	  if(!atoi (addr) && strcmp (addr, "00") != 0)
+	  if (!atoi (addr) && strcmp (addr, "00") != 0)
 		{
 		  fprintf (stderr, "Line %d: expected address of memory cell.\n", ++i);
 		  break;
 		}
-
 	  operand = atoi (oper);
 	  char buffer[255];
 	  sprintf (buffer, "%x", operand);
@@ -77,7 +75,6 @@ void translation (const char* filename)
 			  exit (EXIT_FAILURE);
 			}
 		}
-
 	  if (!strcmp (command, "READ"))
 		{
 		  num_of_cmd = 0x10;
@@ -156,7 +153,8 @@ void translation (const char* filename)
   sc_memorySave (strdup (filename));
 }
 
-int main(int argc, const char** argv)
+int
+main (int argc, const char** argv)
 {
   if (argc < 3)
 	{
