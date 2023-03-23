@@ -68,14 +68,16 @@ mt_setbgcolor (
 }
 
 int
-mt_readtext (char *text, int size) {
+mt_readtext (char *text, int size)
+{
   int numRead = read (STDOUT_FILENO, text, size);
   text[numRead] = '\0';
   return 0;
 }
 
 int
-mt_printtext (char *text) {
+mt_printtext (char *text)
+{
   write (STDOUT_FILENO, text, strlen(text));
   return 0;
 }
