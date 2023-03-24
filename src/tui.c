@@ -424,9 +424,17 @@ g_interface ()
           g_drawborders ();
           frame = 0;
         }
+      if (x == 10)
+        {
+          x = 0;
+        }
       if (x == -1)
         {
           x = 9;
+        }
+      if (y == 10)
+        {
+          y = 0;
         }
       if (y == -1)
         {
