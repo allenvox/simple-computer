@@ -91,36 +91,56 @@ rk_mytermrestore ()
 int
 rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint)
 {
-  if (tcgetattr (STDOUT_FILENO, &current))
-    {
-      return 1;
-    }
-  if (regime)
-    {
+	if (tcgetattr(STDOUT_FILENO, &current) != 0)
+	  {
+		  return -1;
+	  }
+	// канонический режим = 1
+	if (regime)
+	  {
       current.c_lflag |= ICANON;
     }
+	else if (!regime)
+	  {
+		  current.c_lflag &= ~ICANON;
+	  }
+	else
+	  {
+		  return -1;
+	  }
+	// неканонический режим работы
+  if (!regime)
+    {
+    	//количество символов в очереди, чтобы read завершился
+      current.c_cc[VTIME] = vtime;
+      //сколько времени ждать появления символа
+      current.c_cc[VMIN] = vmin;  
+    }
+  // символы будут отражаться по мере набора
+  if (echo == 1)
+    {
+    	current.c_lflag |= ECHO;
+    }
+  else if (!echo)
+    {
+    	current.c_lflag &= ~ECHO;
+   	}
   else
     {
-      current.c_lflag &= ~ICANON;
+      return -1;
     }
-  if (echo)
-    {
-      current.c_lflag |= ECHO;
-    }
-  else
-    {
-      current.c_lflag &= ~ECHO;
-    }
-
+  // обработка клавиш прерывания
   if (sigint)
     {
       current.c_lflag |= ISIG;
     }
+  else if (!sigint)
+    {
+		  current.c_lflag &= ~ISIG;
+    }
   else
     {
-      current.c_lflag &= ~ISIG;
+      return -1;
     }
-  current.c_cc[VTIME] = vtime;
-  current.c_cc[VMIN] = vmin;
-  return tcsetattr (STDOUT_FILENO, TCSANOW, &current);
+  return tcsetattr(STDOUT_FILENO, TCSANOW, &current);
 }
