@@ -202,34 +202,23 @@ g_loadmemory (void)
 {
   g_clearfields ();
   mt_gotoXY (INPUTFIELD_X, 1);
-  write (STDOUT_FILENO, "Load from file:>", strlen ("Load from file:>"));
-  char buff[20][1];
-  mt_gotoXY (25, 18);
-  for (int i = 0; i < 20; i++)
+  mt_printtext (" Load from file:> ");
+  rk_mytermregime (0, 0, 1, 1, 1);
+  char *buff = calloc (0, sizeof (char) * 100);
+  scanf ("%s", buff);
+  mt_gotoXY (RESULTFIELD_X, 1);
+  mt_printtext (" ");
+  if (sc_memoryLoad (buff) == 0)
     {
-      mt_gotoXY (25, 18 + i);
-      read (STDOUT_FILENO, buff[i], 1);
-      if (buff[i][0] == '\n')
-        {
-          break;
-        }
-      mt_gotoXY (25, 18);
-      write (STDERR_FILENO, buff, strlen (buff));
-    }
-  buff[strlen (buff) - 1][0] = '\0';
-  mt_gotoXY (26, 1);
-  if (sc_memoryLoad (buff) != 0)
-    {
-      mt_setbgcolor (RED);
-      write (STDOUT_FILENO, " Fail! \n", strlen (" Fail! \n"));
+      mt_setbgcolor (GREEN);
+      mt_printtext (" SUCCESS ");
     }
   else
     {
-      mt_setbgcolor (GREEN);
-      write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
+      mt_setbgcolor (RED);
+      mt_printtext (" FAIL ");
     }
   mt_setbgcolor (GREY);
-  read (STDOUT_FILENO, NULL, 1);
   g_drawboxes ();
   return 0;
 }
@@ -279,7 +268,6 @@ g_setmemory (int address)
       sc_memorySet (address, value);
       mt_setbgcolor (GREEN);
       mt_printtext (" SUCCESS ");
-      mt_setbgcolor (GREY);
     }
   else
     {
@@ -294,8 +282,8 @@ g_setmemory (int address)
           mt_printtext ("OPERAND");
         }
       mt_printtext (" ");
-      mt_setbgcolor (GREY);
     }
+  mt_setbgcolor (GREY);
   g_drawmemorybox ();
   return 0;
 }
