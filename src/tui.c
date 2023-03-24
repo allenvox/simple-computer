@@ -1,5 +1,8 @@
 #include "tui.h"
 
+#define INPUTFIELD_X 25
+#define RESULTFIELD_X 26
+
 int
 g_writeflags (char **val)
 {
@@ -181,6 +184,20 @@ g_drawbcbox ()
 }
 
 int
+g_clearfields ()
+{
+  for (int j = 25; j < 28; j++)
+    {
+      mt_gotoXY (j, 1);
+      for (int i = 0; i < 102; i++)
+        {
+          mt_printtext (" ");
+        }
+    }
+  return 0;
+}
+
+int
 g_loadmemory (void)
 {
   mt_gotoXY (25, 1);
@@ -246,27 +263,49 @@ g_savememory (void)
 }
 
 int
-g_setmemory (int x, int y)
+g_setmemory (int address)
 {
-  mt_gotoXY (25, 1);
-  write (STDOUT_FILENO, "Set memory value to:>",
-         strlen ("Set memory value to:>"));
-  char buff[5][1];
-  for (int i = 0; i < 4; i++)
+  g_clearfields ();
+  mt_gotoXY (INPUTFIELD_X, 1);
+  mt_printtext (" Command:> ");
+  rk_mytermregime (0, 0, 2, 1, 1);
+  char buff[3];
+  mt_readtext (buff, sizeof (buff));
+  int cmd;
+  sscanf(buff, "%x", &cmd);
+  mt_printtext (" Operand:> ");
+  rk_mytermregime (0, 0, 2, 1, 1);
+  mt_readtext (buff, sizeof (buff));
+  int operand;
+  sscanf (buff, "%x", &operand);
+  sc_regSet (FLAG_WRONG_COMMAND, 0);
+  int value;
+  int err = sc_commandEncode (cmd, operand, &value);
+  mt_gotoXY (RESULTFIELD_X, 1);
+  mt_printtext (" ");
+  if (err == 0)
     {
-      mt_gotoXY (25, 23 + i);
-      read (STDOUT_FILENO, buff[i], 1);
-      if (buff[i][0] == '\n')
-        {
-          break;
-        }
-      mt_gotoXY (25, 23);
-      write (STDERR_FILENO, buff, strlen (buff));
+      sc_memorySet (address, value);
+      mt_setbgcolor (GREEN);
+      mt_printtext (" SUCCESS ");
+      mt_setbgcolor (GREY);
     }
-  buff[4][0] = '\0';
-  int val = atoi (buff);
-  sc_memorySet (x * 10 + y, val);
-  g_drawboxes ();
+  else
+    {
+      mt_setbgcolor (RED);
+      mt_printtext (" FAIL : WRONG ");
+      if (err == ERR_WRONG_COMMAND)
+        {
+          mt_printtext ("COMMAND");
+        }
+      else
+        {
+          mt_printtext ("OPERAND");
+        }
+      mt_printtext (" ");
+      mt_setbgcolor (GREY);
+    }
+  g_drawmemorybox ();
   return 0;
 }
 
@@ -366,6 +405,7 @@ g_interface ()
 {
   mt_setbgcolor (GREY);
   g_drawborders ();
+  g_clearfields ();
   int exit = 0, x = 0, y = 0, frame = 0;
   while (!exit)
     {
@@ -406,7 +446,7 @@ g_interface ()
           g_drawboxes ();
           break;
         case KEY_ENTER:
-          g_setmemory (x, y);
+          g_setmemory (count);
           break;
         case KEY_R:
           sc_regGet (FLAG_IGNORE, &flag);
