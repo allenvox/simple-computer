@@ -200,7 +200,8 @@ g_clearfields ()
 int
 g_loadmemory (void)
 {
-  mt_gotoXY (25, 1);
+  g_clearfields ();
+  mt_gotoXY (INPUTFIELD_X, 1);
   write (STDOUT_FILENO, "Load from file:>", strlen ("Load from file:>"));
   char buff[20][1];
   mt_gotoXY (25, 18);
@@ -236,28 +237,18 @@ g_loadmemory (void)
 int
 g_savememory (void)
 {
-  mt_gotoXY (25, 1);
-  write (STDOUT_FILENO, "Save to:>", strlen ("Save to:>"));
-  char buff[20][1];
-  mt_gotoXY (25, 11);
-  for (int i = 0; i < 20; i++)
-    {
-      mt_gotoXY (25, 12 + i);
-      read (STDOUT_FILENO, buff[i], 1);
-      if (buff[i][0] == '\n')
-        {
-          break;
-        }
-      mt_gotoXY (25, 12);
-      write (STDERR_FILENO, buff, strlen (buff));
-    }
-  buff[strlen (buff) - 1][0] = '\0';
+  g_clearfields ();
+  mt_gotoXY (INPUTFIELD_X, 1);
+  mt_printtext (" Save to file:> ");
+  rk_mytermregime (0, 0, 1, 1, 1);
+  char *buff = calloc (0, sizeof (char) * 100);
+  scanf ("%s", buff);
   sc_memorySave (buff);
-  mt_gotoXY (26, 1);
+  mt_gotoXY (RESULTFIELD_X, 1);
+  mt_printtext (" ");
   mt_setbgcolor (GREEN);
-  write (STDOUT_FILENO, " Success! \n", strlen (" Success! \n"));
+  mt_printtext (" SUCCESS ");
   mt_setbgcolor (GREY);
-  read (STDOUT_FILENO, NULL, 1);
   g_drawboxes ();
   return 0;
 }
