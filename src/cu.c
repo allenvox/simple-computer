@@ -6,13 +6,13 @@ READ (int operand)
   mt_goToXY (25, 1);
   mt_printText ("Input value(dec):>");
   rk_mytermregime (0, 0, 1, 1, 1);
-  char buffAf[2];
-  mt_readText (buffAf, sizeof(buffAf));
+  char buff1[2];
+  mt_readText (buff1, sizeof(buff1));
   int sign = 1;
-  if (buffAf[0] == '-' || buffAf[0] == '+')
+  if (buff1[0] == '-' || buff1[0] == '+')
     {
       rk_mytermregime (0, 0, 4, 1, 1);
-      if (buffAf[0] == '-')
+      if (buff1[0] == '-')
        	{
           sign = -1;
         }
@@ -21,20 +21,17 @@ READ (int operand)
     {
       rk_mytermregime (0, 0, 3, 1, 1);
     }
-  char buffAs [5];
-  mt_readText (buffAs, sizeof(buffAs));
-  char buffA[6];
+  char buff2 [5];
+  mt_readText (buff2, sizeof(buff2));
+  char buff3[6];
   if (sign)
     {
-      sprintf (buffA, "%s", buffAf);
+      sprintf (buff3, "%s", buff1);
     }
-  sprintf (buffA, "%s%s", buffA, buffAs);
-  int valueA;
-  sscanf (buffA, "%d", &valueA);
-  sc_memorySet (operand, valueA);
-  char outputA[255];
-  sprintf (outputA, "Input value(dec):> %s", buffA);
-  sc_addOutput (outputA);
+  sprintf (buff3, "%s%s", buff3, buff2);
+  int value;
+  sscanf (buff3, "%d", &value);
+  sc_memorySet (operand, value);
   return 0;
 }
 
@@ -52,7 +49,7 @@ WRITE (int operand)
 	  {
 	    sprintf (tmp, "Value:> -%.4X", -1 * value);
 	  }
-  sc_addOutput (tmp);
+  mt_printtext (tmp);
   return 0;
 }
 
