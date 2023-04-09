@@ -1,13 +1,13 @@
-#include "CU.h"
+#include "cu.h"
 
 int
 READ (int operand)
 {
-  mt_goToXY (25, 1);
-  mt_printText ("Input value(dec):>");
+  mt_gotoXY (25, 1);
+  mt_printtext ("Input value(dec):>");
   rk_mytermregime (0, 0, 1, 1, 1);
   char buff1[2];
-  mt_readText (buff1, sizeof(buff1));
+  mt_readtext (buff1, sizeof(buff1));
   int sign = 1;
   if (buff1[0] == '-' || buff1[0] == '+')
     {
@@ -22,7 +22,7 @@ READ (int operand)
       rk_mytermregime (0, 0, 3, 1, 1);
     }
   char buff2 [5];
-  mt_readText (buff2, sizeof(buff2));
+  mt_readtext (buff2, sizeof(buff2));
   char buff3[6];
   if (sign)
     {
@@ -80,7 +80,7 @@ JUMP (int operand)
 }
 
 int
-JNEG (int operand)
+JNEG (int operand) // jump to instruction if accumulator is negative
 {
   int accum;
   sc_accumGet (&accum);
@@ -93,7 +93,7 @@ JNEG (int operand)
 }
 
 int
-JZ (int operand)
+JZ (int operand) // jump if accumulator equals to zero
 {
   int accum;
   sc_accumGet (&accum);
