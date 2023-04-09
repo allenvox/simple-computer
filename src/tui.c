@@ -385,7 +385,7 @@ g_interface ()
   mt_setbgcolor (GREY);
   g_drawborders ();
   g_clearfields ();
-  int exit = 0, x = 0, y = 0, frame = 0;
+  int exit = 0, x = 0, y = 0;
   while (!exit)
     {
       g_drawboxes ();
@@ -398,7 +398,7 @@ g_interface ()
       rk_readkey (&key);
       switch (key)
         {
-        case KEY_Q:
+        case KEY_Q: // exit
           exit++;
           break;
         case KEY_UP:
@@ -413,36 +413,30 @@ g_interface ()
         case KEY_RIGHT:
           y++;
           break;
-        case KEY_L:
+        case KEY_L: // load memory
           g_loadmemory ();
           break;
-        case KEY_S:
+        case KEY_S: // save memory
           g_savememory ();
           break;
-        case KEY_I:
+        case KEY_I: // reset
           raise (SIGUSR1);
           x = 0, y = 0;
           g_drawboxes ();
           break;
-        case KEY_ENTER:
+        case KEY_ENTER: // setting values
           g_setmemory (count);
           break;
-        case KEY_R:
+        case KEY_R: // ignore flag
           sc_regGet (FLAG_IGNORE, &flag);
           sc_regSet (FLAG_IGNORE, !flag);
           alarm (flag);
           break;
-        case KEY_T:
-
-          break;
-        default:
+        case KEY_T: // control unit
+          alarm (1);
           break;
         }
-      if (frame == 5)
-        {
-          g_drawborders ();
-          frame = 0;
-        }
+      // borders handling
       if (x == 10)
         {
           x = 0;
@@ -460,7 +454,6 @@ g_interface ()
           y = 9;
         }
       sc_countSet (x * 10 + y);
-      frame++;
     }
   return 0;
 }
