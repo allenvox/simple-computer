@@ -1,4 +1,5 @@
 #include "sig.h"
+#include "cu.h"
 #include "tui.h"
 
 int
@@ -14,6 +15,7 @@ sig_handle_reset ()
 int
 sig_handle_alarm ()
 {
+  CU ();
   g_drawboxes ();
   int value;
   sc_countGet (&value);
