@@ -27,3 +27,15 @@ bin/test: test/*.c lib/bc.a lib/msc.a lib/readkey.a lib/tui.a lib/term.a lib/sig
 .PHONY: clean
 clean:
 	rm -rf bin/ lib/ obj/
+
+sat: bin/sat
+.PHONY: bin/sat
+bin/sat: src/simpleassembler.c src/msc.c
+	$(DIRGUARD)
+	gcc -Wall -Wextra -o $@ $^
+
+sbt: bin/sbt
+.PHONY: bin/sbt
+bin/sbt: src/simplebasic.c
+	$(DIRGUARD)
+	gcc -Wall -Wextra -o $@ $^
