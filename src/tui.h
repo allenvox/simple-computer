@@ -17,6 +17,8 @@
 #define X_START 2
 #define Y_START 3
 #define Y_STEP 6
+#define INPUTFIELD_X 25
+#define RESULTFIELD_X 26
 
 int g_writeflags (char **val);
 int g_drawborders (void);

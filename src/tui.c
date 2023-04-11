@@ -1,8 +1,5 @@
 #include "tui.h"
 
-#define INPUTFIELD_X 25
-#define RESULTFIELD_X 26
-
 int
 g_writeflags (char **val)
 {
