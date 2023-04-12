@@ -12,26 +12,11 @@ int
 main ()
 {
   sc_memoryInit ();
-
-  int cmd;
-  sc_commandEncode(10, 78, &cmd); // READ 78
-  sc_memorySet (3, cmd);
-	sc_commandEncode(10, 88, &cmd); // READ 88
-  sc_memorySet (6, cmd);
-	sc_commandEncode(20, 79, &cmd); // LOAD 79
-  sc_memorySet (9, cmd);
-	sc_commandEncode(30, 89, &cmd); // ADD 89
-  sc_memorySet (12, cmd);
-	sc_commandEncode(21, 99, &cmd); // STORE 99
-  sc_memorySet (15, cmd);
-	sc_commandEncode(20, 78, &cmd); // LOAD 78
-  sc_memorySet (18, cmd);
-	sc_commandEncode(30, 88, &cmd); // ADD 88
-  sc_memorySet (21, cmd);
-	sc_commandEncode(21, 98, &cmd); // STORE 98
-  sc_memorySet (24, cmd);
-	sc_commandEncode(43, 0, &cmd); // HALT
-  sc_memorySet (27, cmd);
+  sc_memorySet (1, 313);
+  sc_memorySet (11, 0x7fff);
+  sc_memorySet (21, 0x3fff);
+  sc_memorySet (31, 0x5ff); // read 81
+  sc_memorySet (41, 0x5d1); // write 81
 
   sc_regInit ();
   sc_regSet (FLAG_IGNORE, 1);
