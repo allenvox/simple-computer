@@ -1,4 +1,5 @@
 #include "tui.h"
+#include "cu.h"
 
 int
 g_writeflags (char **val)
@@ -382,14 +383,12 @@ g_interface ()
   mt_setbgcolor (GREY);
   g_drawborders ();
   g_clearfields ();
-  int exit = 0, x = 0, y = 0;
+  int exit = 0, address = 0, flag = 0;
   while (!exit)
     {
+      sc_countGet (&address);
       g_drawboxes ();
-      int count, flag;
-      sc_countGet (&count);
-      x = count / 10;
-      y = count % 10;
+      int x = address / 10, y = address % 10;
       g_highlightmemory (x, y);
       enum keys key = KEY_DEFAULT;
       rk_readkey (&key);
@@ -422,7 +421,7 @@ g_interface ()
           g_drawboxes ();
           break;
         case KEY_ENTER: // setting values
-          g_setmemory (count);
+          g_setmemory (address);
           break;
         case KEY_R: // ignore flag
           sc_regGet (FLAG_IGNORE, &flag);
@@ -450,7 +449,8 @@ g_interface ()
         {
           y = 9;
         }
-      sc_countSet (x * 10 + y);
+      address = x * 10 + y;
+      sc_countSet (address);
     }
   return 0;
 }
