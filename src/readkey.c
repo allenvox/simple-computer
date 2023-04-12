@@ -111,10 +111,10 @@ rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint)
 	// неканонический режим работы
   if (!regime)
     {
-    	//количество символов в очереди, чтобы read завершился
+    	// количество символов в очереди, чтобы read завершился
       current.c_cc[VTIME] = vtime;
-      //сколько времени ждать появления символа
-      current.c_cc[VMIN] = vmin;  
+      // сколько времени ждать появления символа
+      current.c_cc[VMIN] = vmin;
     }
   // символы будут отражаться по мере набора
   if (echo == 1)

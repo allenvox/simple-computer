@@ -318,23 +318,23 @@ parsRPN (char* rpn, char* var)
             {
               operand1 = getVariableAddress (memoryCounter - 2);
               operand2 = getVariableAddress (memoryCounter - 1);
-              fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter, operand1); //закидываем самый правый операнд в акк
+              fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter, operand1); // закидываем самый правый операнд в акк
               assemblerCommandCounter++; 
               switch (x)
               {
-              case '+':
+              case '+': // summation
                     fprintf (output, "%.2i ADD %d\n", assemblerCommandCounter, operand2);
                     assemblerCommandCounter++;
                     break;
-              case '-': //SUB
+              case '-': // substraction
                     fprintf (output, "%.2i SUB %d\n", assemblerCommandCounter, operand2);
                     assemblerCommandCounter++;
                     break;
-              case '/': //DIVIDE
+              case '/': // division
                     fprintf (output, "%.2i DIVIDE %d\n", assemblerCommandCounter, operand2);
                     assemblerCommandCounter++;
                     break;
-              case '*': //MUL
+              case '*': // multiplication
                     fprintf (output, "%.2i MUL %d\n", assemblerCommandCounter, operand2);
                     assemblerCommandCounter++;
                     break;

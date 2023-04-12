@@ -429,8 +429,8 @@ g_interface ()
           sc_regSet (FLAG_IGNORE, !flag);
           alarm (flag);
           break;
-        case KEY_T: // control unit
-          alarm (1);
+        case KEY_T: // step key - calling control unit
+          CU ();
           break;
         }
       // borders handling
