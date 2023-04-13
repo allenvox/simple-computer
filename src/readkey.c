@@ -79,7 +79,9 @@ rk_readkey (enum keys *key)
 int
 rk_mytermsave ()
 {
-  return tcsetattr (STDOUT_FILENO, TCSANOW, &current);
+  tcsetattr (STDOUT_FILENO, TCSANOW, &current);
+  memcpy (&backup, &current, sizeof (backup));
+  return 0;
 }
 
 int
