@@ -15,12 +15,12 @@ main ()
   sc_memorySet (1, 313);
   sc_memorySet (11, 0x7fff);
   sc_memorySet (21, 0x3fff);
-  sc_memorySet (31, 0x5ff); // read 81
-  sc_memorySet (41, 0x5d1); // write 81
+  sc_memorySet (31, 0x851); // read 81
+  sc_memorySet (41, 0x8d1); // write 81
 
   sc_regInit ();
   sc_regSet (FLAG_IGNORE, 1);
-  sc_accumSet (9999);
+  sc_accumSet (0);
   sc_countSet (0);
   sig_set ();
 

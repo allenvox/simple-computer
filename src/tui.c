@@ -283,7 +283,7 @@ g_drawoperationbox (void)
   sc_memoryGet (address, &val);
   char buff[11];
   int err = sc_commandDecode (val, &cmd, &oper);
-  sprintf (buff, " %02x:%02x", cmd, oper);
+  sprintf (buff, " %02x:%d", cmd, oper);
   if (err == 0)
     {
       buff[0] = '+';

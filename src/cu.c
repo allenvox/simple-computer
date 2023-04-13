@@ -1,4 +1,5 @@
 #include "cu.h"
+#include "term.h"
 #include "tui.h"
 
 int
@@ -6,7 +7,8 @@ READ (int operand) // read new content for memory unit from console
 {
   g_clearfields ();
   mt_gotoXY (INPUTFIELD_X, 1);
-  mt_printtext (" Value (hex):> ");
+  mt_printtext (" Input (hex):> ");
+  rk_mytermsave ();
   rk_mytermregime (0, 0, 4, 1, 1);
   char buff[5];
   mt_readtext (buff, sizeof (buff));
@@ -42,6 +44,7 @@ READ (int operand) // read new content for memory unit from console
       mt_printtext (" : WROTE ANYWAY ");
     }
   mt_setbgcolor (GREY);
+  rk_mytermrestore ();
   g_drawmemorybox ();
   return 0;
 }
@@ -53,7 +56,8 @@ WRITE (int operand) // write memory unit contents to console
   char buff[6];
   g_getunit (operand, &buff);
   char tmp[16];
-  sprintf (tmp, " Value:> %s", buff);
+  sprintf (tmp, " Output:> %s", buff);
+  mt_gotoXY (RESULTFIELD_X, 1);
   mt_printtext (tmp);
   return 0;
 }
