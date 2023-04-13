@@ -241,66 +241,20 @@ g_savememory (void)
 }
 
 int
-g_setmemory (int address)
-{
-  g_clearfields ();
-  mt_gotoXY (INPUTFIELD_X, 1);
-  mt_printtext (" Command:> ");
-  rk_mytermregime (0, 0, 2, 1, 1);
-  char buff[3];
-  mt_readtext (buff, sizeof (buff));
-  int cmd;
-  sscanf(buff, "%x", &cmd);
-  mt_printtext (" Operand:> ");
-  rk_mytermregime (0, 0, 2, 1, 1);
-  mt_readtext (buff, sizeof (buff));
-  int operand;
-  sscanf (buff, "%x", &operand);
-  sc_regSet (FLAG_WRONG_COMMAND, 0);
-  int value;
-  int err = sc_commandEncode (cmd, operand, &value);
-  mt_gotoXY (RESULTFIELD_X, 1);
-  mt_printtext (" ");
-  if (err == 0)
-    {
-      sc_memorySet (address, value);
-      mt_setbgcolor (GREEN);
-      mt_printtext (" SUCCESS ");
-    }
-  else
-    {
-      mt_setbgcolor (RED);
-      mt_printtext (" FAIL : WRONG ");
-      if (err == ERR_WRONG_COMMAND)
-        {
-          mt_printtext ("COMMAND");
-        }
-      else
-        {
-          mt_printtext ("OPERAND");
-        }
-      mt_printtext (" ");
-    }
-  mt_setbgcolor (GREY);
-  g_drawmemorybox ();
-  return 0;
-}
-
-int
 g_getunit (int address, char *buff)
 {
   int val, command, operand;
   sc_memoryGet (address, &val);
   char temp[6];
   int err = sc_commandDecode (val, &command, &operand);
-  sprintf (temp, " %02x%02x", command, operand);
-  if (err == ERR_WRONG_COMMAND)
-    {
-      temp[0] = '-';
-    }
-  else if (err == 0)
+  sprintf (temp, " %04x", val);
+  if (err == 0)
     {
       temp[0] = '+';
+    }
+  else
+    {
+      temp[0] = '-';
     }
   strcpy (buff, temp);
   return 0;
@@ -315,7 +269,7 @@ g_highlightmemory (int x, int y)
   g_getunit (address, &buff);
   mt_gotoXY (X_START + x, Y_START + y * Y_STEP);
   mt_setbgcolor (BLUE);
-  write (STDERR_FILENO, buff, 6 * sizeof (char));
+  mt_printtext (buff);
   mt_setbgcolor (GREY);
   return 0;
 }
@@ -324,13 +278,21 @@ int
 g_drawoperationbox (void)
 {
   mt_gotoXY (8, 79);
-  int address;
+  int address, val, cmd = 0, oper = 0;
   sc_countGet (&address);
-  char buff[6];
-  g_getunit (address, &buff);
-  char result[7];
-  sprintf (result, "%c%c%c:%c%c", buff[0], buff[1], buff[2], buff[3], buff[4]);
-  write (STDOUT_FILENO, result, 7 * sizeof (char));
+  sc_memoryGet (address, &val);
+  char buff[11];
+  int err = sc_commandDecode (val, &cmd, &oper);
+  sprintf (buff, " %02x:%02x", cmd, oper);
+  if (err == 0)
+    {
+      buff[0] = '+';
+    }
+  else
+    {
+      buff[0] = '-';
+    }
+  mt_printtext (buff);
   mt_gotoXY (33, 0);
   return 0;
 }
@@ -398,16 +360,36 @@ g_interface ()
           exit++;
           break;
         case KEY_UP:
-          x--;
+          address -= 10;
+          if (address < 0)
+            {
+              address += 100;
+            }
+          sc_countSet (address);
           break;
         case KEY_DOWN:
-          x++;
+          address += 10;
+          if (address > 99)
+            {
+              address -= 100;
+            }
+          sc_countSet (address);
           break;
         case KEY_LEFT:
-          y--;
+          address -= 1;
+          if (address % 10 == 9 || address == -1)
+            {
+              address += 10;
+            }
+          sc_countSet (address);
           break;
         case KEY_RIGHT:
-          y++;
+          address += 1;
+          if (address % 10 == 0)
+            {
+              address -= 10;
+            }
+          sc_countSet (address);
           break;
         case KEY_L: // load memory
           g_loadmemory ();
@@ -421,7 +403,7 @@ g_interface ()
           g_drawboxes ();
           break;
         case KEY_ENTER: // setting values
-          g_setmemory (address);
+          READ (address);
           break;
         case KEY_R: // ignore flag
           sc_regGet (FLAG_IGNORE, &flag);
@@ -431,26 +413,11 @@ g_interface ()
         case KEY_T: // step key - calling control unit
           CU ();
           break;
+        case KEY_F5:
+          break;
+        case KEY_F6:
+          break;
         }
-      // borders handling
-      if (x == 10)
-        {
-          x = 0;
-        }
-      if (x == -1)
-        {
-          x = 9;
-        }
-      if (y == 10)
-        {
-          y = 0;
-        }
-      if (y == -1)
-        {
-          y = 9;
-        }
-      address = x * 10 + y;
-      sc_countSet (address);
     }
   return 0;
 }
