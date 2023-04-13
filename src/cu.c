@@ -1,60 +1,65 @@
 #include "cu.h"
+#include "tui.h"
 
 int
-READ (int operand)
+READ (int operand) // read new content for memory unit from console
 {
-  mt_gotoXY (25, 1);
-  mt_printtext ("Input value(dec):>");
-  rk_mytermregime (0, 0, 1, 1, 1);
-  char buff1[2];
-  mt_readtext (buff1, sizeof(buff1));
-  int sign = 1;
-  if (buff1[0] == '-' || buff1[0] == '+')
+  g_clearfields ();
+  mt_gotoXY (INPUTFIELD_X, 1);
+  mt_printtext (" Value (hex):> ");
+  rk_mytermregime (0, 0, 4, 1, 1);
+  char buff[5];
+  mt_readtext (buff, sizeof (buff));
+  int value;
+  sscanf(buff, "%x", &value);
+  sc_regSet (FLAG_WRONG_COMMAND, 0);
+  sc_regSet (FLAG_WRONG_OPERAND, 0);
+  int cmd, oper;
+  int err = sc_commandDecode (value, &cmd, &oper);
+  mt_gotoXY (RESULTFIELD_X, 1);
+  mt_printtext (" ");
+  if (err == 0)
     {
-      rk_mytermregime (0, 0, 4, 1, 1);
-      if (buff1[0] == '-')
-       	{
-          sign = -1;
-        }
+      sc_memorySet (operand, value);
+      mt_setbgcolor (GREEN);
+      mt_printtext (" SUCCESS ");
     }
   else
     {
-      rk_mytermregime (0, 0, 3, 1, 1);
+      sc_memorySet (operand, value);
+      mt_setbgcolor (RED);
+      mt_printtext (" FAIL : WRONG ");
+      if (err == ERR_WRONG_COMMAND)
+        {
+          sc_regSet (FLAG_WRONG_COMMAND, 1);
+          mt_printtext ("COMMAND");
+        }
+      else
+        {
+          sc_regSet (FLAG_WRONG_OPERAND, 1);
+          mt_printtext ("OPERAND");
+        }
+      mt_printtext (" : WROTE ANYWAY ");
     }
-  char buff2 [5];
-  mt_readtext (buff2, sizeof(buff2));
-  char buff3[6];
-  if (sign)
-    {
-      sprintf (buff3, "%s", buff1);
-    }
-  sprintf (buff3, "%s%s", buff3, buff2);
-  int value;
-  sscanf (buff3, "%d", &value);
-  sc_memorySet (operand, value);
+  mt_setbgcolor (GREY);
+  g_drawmemorybox ();
   return 0;
 }
 
 int
-WRITE (int operand)
+WRITE (int operand) // write memory unit contents to console
 {
-  int value;
-  sc_memoryGet (operand, &value);
-  char tmp[14];
-  if (value > 0)
-	  {
-	    sprintf (tmp, "Value:> %.4X", value);
-	  }
-  else
-	  {
-	    sprintf (tmp, "Value:> -%.4X", -1 * value);
-	  }
+  g_clearfields ();
+  char buff[6];
+  g_getunit (operand, &buff);
+  char tmp[16];
+  sprintf (tmp, " Value:> %s", buff);
   mt_printtext (tmp);
   return 0;
 }
 
 int
-LOAD (int operand)
+LOAD (int operand) // put value from accumulator to operand# memory cell
 {
   int value = 0;
   sc_memoryGet (operand, &value);
@@ -63,7 +68,7 @@ LOAD (int operand)
 }
 
 int
-STORE (int operand)
+STORE (int operand) // put operand from accumulator to memory
 {
   int accum;
   sc_accumGet (&accum);
@@ -72,7 +77,7 @@ STORE (int operand)
 }
 
 int
-JUMP (int operand)
+JUMP (int operand) // jump to instruction
 {
   sc_countSet (operand);
   CU ();
@@ -106,9 +111,10 @@ JZ (int operand) // jump if accumulator equals to zero
 }
 
 int
-HALT ()
+HALT () // set ignore flag to 1
 {
   sc_regSet (FLAG_IGNORE, 1);
+  alarm (0);
   sc_countSet (0);
   return 0;
 }
