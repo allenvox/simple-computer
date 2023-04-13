@@ -16,16 +16,18 @@ int
 sig_handle_alarm ()
 {
   CU ();
-  g_drawboxes ();
   int value;
   sc_countGet (&value);
   sc_countSet (value + 1);
-  int x = (value + 1) / 10;
-  int y = (value + 1) % 10;
+  sc_countGet (&value);
+  g_drawboxes ();
+  int flag;
+  int x = value / 10;
+  int y = value % 10;
   g_highlightmemory (x, y);
   g_drawbcbox ();
-  alarm (1);
-  sc_regSet (FLAG_IGNORE, 0);
+  sc_regGet (FLAG_IGNORE, &flag);
+  alarm (!flag);
   return 0;
 }
 
