@@ -28,7 +28,6 @@ int g_drawbcbox (void);
 int g_clearfields (void);
 int g_loadmemory (void);
 int g_savememory (void);
-int g_setmemory (int address);
 int g_getunit (int address, char *buff);
 int g_highlightmemory (int x, int y);
 int g_drawoperationbox (void);
