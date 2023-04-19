@@ -30,12 +30,12 @@ clean:
 
 sat: bin/sat
 .PHONY: bin/sat
-bin/sat: src/simpleassembler.c src/msc.c
+bin/sat: src/sat.c src/msc.c
 	$(DIRGUARD)
 	gcc -Wall -Wextra -o $@ $^
 
 sbt: bin/sbt
 .PHONY: bin/sbt
-bin/sbt: src/simplebasic.c
+bin/sbt: src/sbt.c src/translator.c
 	$(DIRGUARD)
 	gcc -Wall -Wextra -o $@ $^

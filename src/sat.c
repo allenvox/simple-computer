@@ -39,7 +39,9 @@ translation (const char* filename)
 				break;
 			}
 		}
-	  char* addr, command, oper;
+	  char* addr;
+	  char* command;
+	  char* oper;
 	  int num_of_cmd = 0, operand = 0, address = 0;
 	  char *ptr = strtok (line, " ");
 	  addr = ptr;
