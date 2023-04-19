@@ -39,12 +39,8 @@ translation (const char* filename)
 				break;
 			}
 		}
-	  char* addr;
-	  char* command;
-	  char* oper;
-	  int num_of_cmd = 0;
-	  int operand = 0;
-	  int address = 0;
+	  char* addr, command, oper;
+	  int num_of_cmd = 0, operand = 0, address = 0;
 	  char *ptr = strtok (line, " ");
 	  addr = ptr;
 	  ptr = strtok (NULL, " ");
@@ -52,7 +48,7 @@ translation (const char* filename)
 	  ptr = strtok (NULL, " +");
 	  oper = ptr;
 	  address = atoi (addr);
-	  ptr = strtok (NULL," ");
+	  ptr = strtok (NULL, " ");
 	  if (ptr != NULL && ptr[0] != ';')
 		{
 		  fprintf (stderr, "Line %d: unexpected symbols.\n", ++i);
@@ -67,7 +63,7 @@ translation (const char* filename)
 	  char buffer[255];
 	  sprintf (buffer, "%x", operand);
 	  sscanf (buffer, "%x", &operand);
-	  if((operand == NULL && (strcmp (oper, "0\n") != 0 && strcmp (oper, "00\n") != 0 && strcmp (oper, "000\n") != 0 && strcmp (oper, "0000\n") != 0)))
+	  if ((operand == NULL && (strcmp (oper, "0\n") != 0 && strcmp (oper, "00\n") != 0 && strcmp (oper, "000\n") != 0 && strcmp (oper, "0000\n") != 0)))
 		{
 		  if ((strcmp (command,"=") != 0))
 			{
@@ -158,7 +154,7 @@ main (int argc, const char** argv)
 {
   if (argc < 3)
 	{
-	  fprintf (stderr, "Usage: %s input.sa output.o\n", argv[0]);
+	  fprintf (stderr, "Usage: %s <input_file.sa> <output_object_file.o>\n", argv[0]);
 	  exit (EXIT_FAILURE);
 	}
   sc_memoryInit ();
