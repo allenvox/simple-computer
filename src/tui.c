@@ -68,7 +68,7 @@ g_drawaccumbox (void)
   char buff[5];
   int val;
   sc_accumGet (&val);
-  sprintf (buff, "%04d", val);
+  sprintf (buff, "%d", val);
   write (STDOUT_FILENO, buff, 5 * sizeof (char));
   mt_gotoXY (33, 0);
   return 0;

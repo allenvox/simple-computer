@@ -3,11 +3,6 @@
 #include <stdio.h>
 #include "msc.h"
 
-#define ERR_EXPECTED_ADDRESS_OF_MEMORY_CELL -1
-#define ERR_WRONG_COMMAND -2
-#define ERR_WRONG_OPERAND -3
-#define ERR_BY_ENCODE -4
-
 FILE *input = NULL;
 
 void
@@ -63,16 +58,8 @@ translation (const char* filename)
 		}
 	  operand = atoi (oper);
 	  char buffer[255];
-	  sprintf (buffer, "%x", operand);
-	  sscanf (buffer, "%x", &operand);
-	  if ((operand == NULL && (strcmp (oper, "0\n") != 0 && strcmp (oper, "00\n") != 0 && strcmp (oper, "000\n") != 0 && strcmp (oper, "0000\n") != 0)))
-		{
-		  if ((strcmp (command,"=") != 0))
-			{
-			  fprintf (stderr, "Line %d: wrong operand.\n", ++i);
-			  exit (EXIT_FAILURE);
-			}
-		}
+	  sprintf (buffer, "%02x", operand);
+	  sscanf (buffer, "%02x", &operand);
 	  if (!strcmp (command, "READ"))
 		{
 		  num_of_cmd = 0x10;
