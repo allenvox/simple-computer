@@ -1,7 +1,7 @@
 #include "term.h"
 
 int
-mt_clrscr (void) // clears screen and moves cursor to upper left corner
+mt_clrscr (void)
 {
   if ((unsigned long)write (STDOUT_FILENO, CLEAR, strlen (CLEAR))
       < sizeof (char) * strlen (CLEAR))
@@ -12,9 +12,7 @@ mt_clrscr (void) // clears screen and moves cursor to upper left corner
 }
 
 int
-mt_gotoXY (
-    int x,
-    int y) // moves cursor to the entered coordinates (x, y) = (row, col)
+mt_gotoXY (int x, int y)
 {
   char go[30];
   sprintf (go, "\E[%d;%dH", x, y);
@@ -27,8 +25,7 @@ mt_gotoXY (
 }
 
 int
-mt_getscreensize (
-    int *rows, int *cols) // gets terminal screen size (num of rows and cols)
+mt_getscreensize (int *rows, int *cols)
 {
   struct winsize ws;
   if (ioctl (1, TIOCGWINSZ, &ws))
@@ -41,8 +38,8 @@ mt_getscreensize (
 }
 
 int
-mt_setfgcolor (enum colors color) // sets a background color for all rows and
-{                                 // cols, entire terminal
+mt_setfgcolor (enum colors color)
+{
   char foreground[30];
   sprintf (foreground, "\E[38;5;%dm", color);
   if ((unsigned long)write (STDOUT_FILENO, foreground, strlen (foreground))
@@ -54,8 +51,7 @@ mt_setfgcolor (enum colors color) // sets a background color for all rows and
 }
 
 int
-mt_setbgcolor (
-    enum colors color) // sets a background color only for upcoming characters
+mt_setbgcolor (enum colors color)
 {
   char background[30];
   sprintf (background, "\E[48;5;%dm", color);
@@ -78,6 +74,6 @@ mt_readtext (char *text, int size)
 int
 mt_printtext (char *text)
 {
-  write (STDOUT_FILENO, text, strlen(text));
+  write (STDOUT_FILENO, text, strlen (text));
   return 0;
 }

@@ -1,18 +1,18 @@
 #include "rpn.h"
 
 void
-stack_push (char data, node** top)
+stack_push (char data, node **top)
 {
-  node* tmp = (node*)malloc (sizeof(node));
+  node *tmp = (node *)malloc (sizeof (node));
   tmp->data = data;
   tmp->next = *top;
   *top = tmp;
 }
 
 char
-stack_pop (node** top)
+stack_pop (node **top)
 {
-  node* tmp;
+  node *tmp;
   char d;
   if (*top == NULL)
     {
@@ -29,7 +29,7 @@ stack_pop (node** top)
 }
 
 char
-stack_top (node* top)
+stack_top (node *top)
 {
   if (top != NULL)
     {
@@ -56,10 +56,10 @@ checkPriority (char sign)
   return 0;
 }
 
-char*
-translateToRPN (char* inf, char* rpn)
+char *
+translateToRPN (char *inf, char *rpn)
 {
-  node* root = NULL;
+  node *root = NULL;
   int i = 0, j = 0;
   while (inf[i] != '\0' && inf[i] != '\n')
     {
@@ -71,33 +71,34 @@ translateToRPN (char* inf, char* rpn)
         }
       else if (x == '(')
         {
-           stack_push (x, &root);
+          stack_push (x, &root);
         }
       else if (x == ')')
         {
           while (stack_top (root) != '(')
-           {
+            {
               char c = stack_pop (&root);
               if (c != 0)
                 {
                   rpn[j] = c;
                   j++;
                 }
-           }
+            }
           stack_pop (&root);
         }
       else if (x == '+' || x == '-' || x == '*' || x == '/')
         {
-          while (root != NULL && checkPriority (root->data) >= checkPriority (x))
-           {
+          while (root != NULL
+                 && checkPriority (root->data) >= checkPriority (x))
+            {
               char c = stack_pop (&root);
               if (c != 0)
                 {
                   rpn[j] = c;
                   j++;
                 }
-           }
-           stack_push (x, &root);
+            }
+          stack_push (x, &root);
         }
       else if (x != ' ')
         {

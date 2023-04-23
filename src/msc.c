@@ -5,16 +5,14 @@ int sc_register;
 int sc_accum;
 int sc_count;
 
-int
-sc_memoryInit () // initializes the array of 100 elements
+int sc_memoryInit () // initializes the array of 100 elements
 {
   memset (sc_memory, 0, MEMSIZE * sizeof (sc_memory[0]));
   return 0;
 }
 
-int
-sc_memorySet (int address,
-              int value) // sets the value of [address] memory unit
+int sc_memorySet (int address,
+                  int value) // sets the value of [address] memory unit
 {
   if (address < 0 || address >= MEMSIZE)
     {
@@ -25,9 +23,8 @@ sc_memorySet (int address,
   return 0;
 }
 
-int
-sc_memoryGet (int address, // gets the value of [address] memory unit and
-              int *value)  // returns it into value var
+int sc_memoryGet (int address, // gets the value of [address] memory unit and
+                  int *value)  // returns it into value var
 {
   if (address < 0 || address >= MEMSIZE)
     {
@@ -38,8 +35,7 @@ sc_memoryGet (int address, // gets the value of [address] memory unit and
   return 0;
 }
 
-int
-sc_memorySave (
+int sc_memorySave (
     char *filename) // saves memory into a binary file (write/fwrite)
 {
   FILE *f = fopen (filename, "wb");
@@ -52,8 +48,7 @@ sc_memorySave (
   return 0;
 }
 
-int
-sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
+int sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 {
   FILE *f = fopen (filename, "rb");
   if (!f)
@@ -65,16 +60,14 @@ sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
   return 0;
 }
 
-int
-sc_regInit (void) // inits the register of flags with 0
+int sc_regInit (void) // inits the register of flags with 0
 {
   sc_register = 0;
   return 0;
 }
 
-int
-sc_regSet (int reg,   // sets the flag register value, #define-s are used for
-           int value) // register numbers, if wrong register number - error
+int sc_regSet (int reg, // sets the flag register value, #define-s are used for
+               int value) // register numbers, if wrong register number - error
 {
   if (reg < 1 || reg > 64)
     {
@@ -94,9 +87,8 @@ sc_regSet (int reg,   // sets the flag register value, #define-s are used for
   return 0;
 }
 
-int
-sc_regGet (int reg,
-           int *value) // gets the flag value, if wrong register - error
+int sc_regGet (int reg,
+               int *value) // gets the flag value, if wrong register - error
 {
   if (reg < 1 || reg > 64)
     {
@@ -111,23 +103,25 @@ sc_commandEncode (int command, // encodes command with a specific number and
                   int operand, // operand, puts the result in value, if wrong
                   int *value)  // command or operand - error, value not changes
 {
-  if ((command > 0x0 && command < 0x10) || (command > 0x11 && command < 0x20) || (command > 0x21 && command < 0x30) || (command > 0x33 && command < 0x40) || (command > 0x44 && command < 0x51) || command > 0x79)
+  if ((command > 0x0 && command < 0x10) || (command > 0x11 && command < 0x20)
+      || (command > 0x21 && command < 0x30)
+      || (command > 0x33 && command < 0x40)
+      || (command > 0x44 && command < 0x51) || command > 0x79)
     {
-		  sc_regSet (FLAG_WRONG_COMMAND, 1);
-		  return ERR_WRONG_COMMAND;
-	  }
-	if (operand < 0 || operand > 127)
+      sc_regSet (FLAG_WRONG_COMMAND, 1);
+      return ERR_WRONG_COMMAND;
+    }
+  if (operand < 0 || operand > 127)
     {
       sc_regSet (FLAG_WRONG_OPERAND, 1);
-		  return ERR_WRONG_OPERAND;
-	  }
-	*value = *value | (command << 7);
-	*value = *value | operand;
-	return 0;
+      return ERR_WRONG_OPERAND;
+    }
+  *value = *value | (command << 7);
+  *value = *value | operand;
+  return 0;
 }
 
-int
-sc_commandDecode (
+int sc_commandDecode (
     int value,
     int *command, // decodes value as a sc command, if decoding is impossible -
     int *operand) // sets error command and returns an error
@@ -138,11 +132,15 @@ sc_commandDecode (
       return ERR_WRONG_COMMAND;
     }
   *command = (value >> 7);
-	if ((*command > 0x0 && *command < 0x10) || (*command > 0x11 && *command < 0x20) || (*command > 0x21 && *command < 0x30) || (*command > 0x33 && *command < 0x40) || (*command > 0x44 && *command < 0x51) || *command > 0x79)
+  if ((*command > 0x0 && *command < 0x10)
+      || (*command > 0x11 && *command < 0x20)
+      || (*command > 0x21 && *command < 0x30)
+      || (*command > 0x33 && *command < 0x40)
+      || (*command > 0x44 && *command < 0x51) || *command > 0x79)
     {
-		  sc_regSet (FLAG_WRONG_COMMAND, 1);
-		  return ERR_WRONG_COMMAND;
-	  }
+      sc_regSet (FLAG_WRONG_COMMAND, 1);
+      return ERR_WRONG_COMMAND;
+    }
   *operand = value & 0b1111111;
   return 0;
 }

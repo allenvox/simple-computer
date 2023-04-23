@@ -2,8 +2,8 @@
 
 #include "alu.h"
 #include "msc.h"
-#include "tui.h"
 #include "term.h"
+#include "tui.h"
 #include <string.h>
 
 int READ (int operand);
