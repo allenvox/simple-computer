@@ -1,3 +1,4 @@
+#include "alu.h"
 #include "cu.h"
 #include "term.h"
 #include "tui.h"
