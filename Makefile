@@ -36,6 +36,6 @@ bin/sat: src/sat.c src/msc.c
 
 sbt: bin/sbt
 .PHONY: bin/sbt
-bin/sbt: src/sbt.c src/translator.c
+bin/sbt: src/sbt.c src/rpn.c
 	$(DIRGUARD)
 	gcc -Wall -Wextra -o $@ $^
