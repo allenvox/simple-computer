@@ -1,5 +1,5 @@
-#include "alu.h"
 #include "cu.h"
+#include "alu.h"
 #include "term.h"
 #include "tui.h"
 
