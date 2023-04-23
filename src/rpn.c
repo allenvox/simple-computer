@@ -1,4 +1,4 @@
-#include "translator.h"
+#include "rpn.h"
 
 void
 stack_push (char data, node** top)
@@ -57,7 +57,6 @@ checkPriority (char sign)
 char*
 translate (char* inf, char* rpn)
 {
-  //char rpn[255] = "\0";
   node* root = NULL;
   int i = 0, j = 0;
   while (inf[i] != '\0' && inf[i] != '\n')
@@ -67,7 +66,6 @@ translate (char* inf, char* rpn)
         {
           rpn[j] = x;
           j++;
-          //printf("%s\n", rpn);
         }
       else if (x == '(')
         {
@@ -101,7 +99,6 @@ translate (char* inf, char* rpn)
         }
       else if (x != ' ')
         {
-          //free(rpn);
           fprintf (stderr, "Wrong expression!\n");
           exit (EXIT_FAILURE);
         }
