@@ -2,7 +2,8 @@
 #include "term.h"
 #include "tui.h"
 
-int READ (int operand) // read new content for memory unit from console
+int
+READ (int operand) // read new content for memory unit from console
 {
   g_clearfields ();
   mt_gotoXY (INPUTFIELD_X, 1);
@@ -48,7 +49,8 @@ int READ (int operand) // read new content for memory unit from console
   return 0;
 }
 
-int WRITE (int operand) // write memory unit contents to console
+int
+WRITE (int operand) // write memory unit contents to console
 {
   g_clearfields ();
   char buff[6];
@@ -60,7 +62,8 @@ int WRITE (int operand) // write memory unit contents to console
   return 0;
 }
 
-int LOAD (int operand) // put value from accumulator to operand# memory cell
+int
+LOAD (int operand) // put value from accumulator to operand# memory cell
 {
   int value = 0;
   sc_memoryGet (operand, &value);
@@ -68,7 +71,8 @@ int LOAD (int operand) // put value from accumulator to operand# memory cell
   return 0;
 }
 
-int STORE (int operand) // put operand from accumulator to memory
+int
+STORE (int operand) // put operand from accumulator to memory
 {
   int accum;
   sc_accumGet (&accum);
@@ -76,14 +80,16 @@ int STORE (int operand) // put operand from accumulator to memory
   return 0;
 }
 
-int JUMP (int operand) // jump to instruction
+int
+JUMP (int operand) // jump to instruction
 {
   sc_countSet (operand);
   CU ();
   return 0;
 }
 
-int JNEG (int operand) // jump to instruction if accumulator is negative
+int
+JNEG (int operand) // jump to instruction if accumulator is negative
 {
   int accum;
   sc_accumGet (&accum);
@@ -95,7 +101,8 @@ int JNEG (int operand) // jump to instruction if accumulator is negative
   return 0;
 }
 
-int JZ (int operand) // jump if accumulator equals to zero
+int
+JZ (int operand) // jump if accumulator equals to zero
 {
   int accum;
   sc_accumGet (&accum);
@@ -107,7 +114,8 @@ int JZ (int operand) // jump if accumulator equals to zero
   return 0;
 }
 
-int HALT () // set ignore flag to 1
+int
+HALT () // set ignore flag to 1
 {
   sc_regSet (FLAG_IGNORE, 1);
   alarm (0);

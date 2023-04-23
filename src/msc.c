@@ -5,13 +5,15 @@ int sc_register;
 int sc_accum;
 int sc_count;
 
-int sc_memoryInit () // initializes the array of 100 elements
+int
+sc_memoryInit () // initializes the array of 100 elements
 {
   memset (sc_memory, 0, MEMSIZE * sizeof (sc_memory[0]));
   return 0;
 }
 
-int sc_memorySet (int address,
+int
+sc_memorySet (int address,
                   int value) // sets the value of [address] memory unit
 {
   if (address < 0 || address >= MEMSIZE)
@@ -23,7 +25,8 @@ int sc_memorySet (int address,
   return 0;
 }
 
-int sc_memoryGet (int address, // gets the value of [address] memory unit and
+int
+sc_memoryGet (int address, // gets the value of [address] memory unit and
                   int *value)  // returns it into value var
 {
   if (address < 0 || address >= MEMSIZE)
@@ -35,7 +38,8 @@ int sc_memoryGet (int address, // gets the value of [address] memory unit and
   return 0;
 }
 
-int sc_memorySave (
+int
+sc_memorySave (
     char *filename) // saves memory into a binary file (write/fwrite)
 {
   FILE *f = fopen (filename, "wb");
@@ -48,7 +52,8 @@ int sc_memorySave (
   return 0;
 }
 
-int sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
+int
+sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
 {
   FILE *f = fopen (filename, "rb");
   if (!f)
@@ -60,13 +65,15 @@ int sc_memoryLoad (char *filename) // loads RAM from a file (read/fread)
   return 0;
 }
 
-int sc_regInit (void) // inits the register of flags with 0
+int
+sc_regInit (void) // inits the register of flags with 0
 {
   sc_register = 0;
   return 0;
 }
 
-int sc_regSet (int reg, // sets the flag register value, #define-s are used for
+int
+sc_regSet (int reg,       // sets the flag register value, #define-s are used for
                int value) // register numbers, if wrong register number - error
 {
   if (reg < 1 || reg > 64)
@@ -87,7 +94,8 @@ int sc_regSet (int reg, // sets the flag register value, #define-s are used for
   return 0;
 }
 
-int sc_regGet (int reg,
+int
+sc_regGet (int reg,
                int *value) // gets the flag value, if wrong register - error
 {
   if (reg < 1 || reg > 64)
@@ -121,7 +129,8 @@ sc_commandEncode (int command, // encodes command with a specific number and
   return 0;
 }
 
-int sc_commandDecode (
+int
+sc_commandDecode (
     int value,
     int *command, // decodes value as a sc command, if decoding is impossible -
     int *operand) // sets error command and returns an error
