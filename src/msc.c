@@ -73,7 +73,7 @@ sc_regInit (void) // inits the register of flags with 0
 }
 
 int
-sc_regSet (int reg,       // sets the flag register value, #define-s are used for
+sc_regSet (int reg,   // sets the flag register value, #define-s are used for
            int value) // register numbers, if wrong register number - error
 {
   if (reg < 1 || reg > 64)
