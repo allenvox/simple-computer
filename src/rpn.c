@@ -35,6 +35,7 @@ stack_top (node* top)
     {
       return top->data;
     }
+  return NULL;
 }
 
 int
@@ -52,17 +53,18 @@ checkPriority (char sign)
     case ')':
       return 1;
     }
+  return 0;
 }
 
 char*
-translate (char* inf, char* rpn)
+translateToRPN (char* inf, char* rpn)
 {
   node* root = NULL;
   int i = 0, j = 0;
   while (inf[i] != '\0' && inf[i] != '\n')
     {
       char x = inf[i];
-      if ((x >= 'a' && x <= 'z') || x >= 'A' && x <= 'Z')
+      if ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'))
         {
           rpn[j] = x;
           j++;
@@ -99,7 +101,7 @@ translate (char* inf, char* rpn)
         }
       else if (x != ' ')
         {
-          fprintf (stderr, "Wrong expression!\n");
+          fprintf (stderr, "Wrong expression\n");
           exit (EXIT_FAILURE);
         }
       i++;

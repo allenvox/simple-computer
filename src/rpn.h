@@ -18,4 +18,4 @@ char stack_top (node* top);
 
 // RPN functions
 int check_priority (char sign);
-char* translate (char* inf, char rpn[]);
+char* translateToRPN (char* inf, char rpn[]);

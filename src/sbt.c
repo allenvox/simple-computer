@@ -8,7 +8,7 @@ void PRINT (char* arguments);
 void IF (char* arguments);
 void GOTO (int address,int operand);
 void function (char* command, char* arguments);
-void parsRPN (char* rpn, char* var);
+void parseRPN (char* rpn, char* var);
 void LET (char* arguments);
 void END ();
 
@@ -19,20 +19,20 @@ void END ();
 
 struct variable
 {
-  char Name;
-  int Address;
-  int Value;
+  char name;
+  int address;
+  int value;
 };
 
-struct variable Variables[52];
+struct variable variables[52];
 int variableCount = 0;
 char lastConstantName = 'a';
 
 struct command
 {
-  int Number;
-  char* Command;
-  int Address;
+  int num;
+  char* command;
+  int address;
 };
 
 FILE *input = NULL;
@@ -44,22 +44,23 @@ struct command *program;
 struct command *gotoRecords;
 
 int
-getVariableAddress (char name)
+getVariableAddress (char *name)
 {
   for (int i = 0; i < 52; i++)
 	{
-	  if (Variables[i].Name == name)
+	  if (variables[i].name == name)
 		{
-		  return Variables[i].Address;
+		  return variables[i].address;
 		}
-	  if (Variables[i].Name == NULL)
+	  if (variables[i].name == NULL)
 		{
-		  Variables[i].Name = name;
-		  Variables[i].Address = 99 - i;
+		  variables[i].name = name;
+		  variables[i].address = 99 - i;
 		  variableCount++;
-		  return Variables[i].Address;
+		  return variables[i].address;
 		}
 	}
+  return 0;
 }
 
 char
@@ -67,21 +68,21 @@ intToConstant (int value)
 {
   for (int i = 0; i < 52; i++)
 	{
-	  if (Variables[i].Name == NULL)
+	  if (variables[i].name == NULL)
 		{
-		  Variables[i].Name = lastConstantName;
+		  variables[i].name = lastConstantName;
 		  lastConstantName++;
-		  Variables[i].Address = 99 - i;
-		  Variables[i].Value = value;
-		  fprintf (output, "%.2i = %x\n", Variables[i].Address, abs (Variables[i].Value));
+		  variables[i].address = 99 - i;
+		  variables[i].value = value;
+		  fprintf (output, "%.2i = %x\n", variables[i].address, abs (variables[i].value));
 		  variableCount++;
-		  return Variables[i].Name;
+		  return variables[i].name;
 		}
-	  if (Variables[i].Value != NULL)
+	  if (variables[i].value != NULL)
 		{
-		  if (Variables[i].Value == value)
+		  if (variables[i].value == value)
 			{
-			  return Variables[i].Name;
+			  return variables[i].name;
 			}
 		}
 	}
@@ -95,21 +96,21 @@ preCalcProcessing (char* expr)
   sscanf (ptr, "%c", &val);
   if (!((val) >= 'A' && (val) <= 'Z'))
     {
-      fprintf (stderr, "NOT CORRECT!\n");
+      fprintf (stderr, "NOT CORRECT\n");
       exit (EXIT_FAILURE);
     }
   ptr = strtok (NULL, " ");
   char* eq = ptr;
-  if (strcmp (eq, "=") != 0)
+  /*if (strcmp (eq, "=") != 0)
     {
       fprintf (stderr, "Wrong expression!\n");
       exit (EXIT_FAILURE);
-    }
+    }*/
   ptr = strtok (NULL, "");
   char* exp = ptr;
   int i = 0, j = 0, pos = 0, operat = 0, flg = 1, m = 0;
   char* assign = (char*)malloc (sizeof (char) * 255);
-  for(int k = 0; k < strlen (exp); k++)
+  for(int k = 0; k < (int)strlen (exp); k++)
     {
       if (exp[k] == '-' && flg)
         {
@@ -194,8 +195,8 @@ basic_translate ()
   gotoRecords = (struct command*)malloc (sizeof (struct command) * instructionCounter);
   for (int i = 0 ;i < instructionCounter; i++)
 	{
-	  program[i].Command = (char*)malloc (sizeof (char) * 255);
-	  if (!fgets (program[i].Command, 254, input))
+	  program[i].command = (char*)malloc (sizeof (char) * 255);
+	  if (!fgets (program[i].command, 254, input))
 		{
 		  if (feof (input))
 			{
@@ -212,31 +213,31 @@ basic_translate ()
 	{
 	  char* lin;
       char* thisCommand = (char*)malloc (sizeof (char) * 255);
-	  sprintf(thisCommand, "%s", program[i].Command);
+	  sprintf(thisCommand, "%s", program[i].command);
 	  char* ptr = strtok (thisCommand," ");
 	  lin = ptr;
 	  int line = atoi (lin);
-	  if ((line == NULL) && (strcmp (lin,"0") != 0) && (strcmp (lin,"00") != 0))
+	  if ((strcmp (lin, "0") == 0) && (strcmp (lin, "00") == 0))
 		{
 		  fprintf (stderr, "Line %d: expected line number.\n", i++);
 		  break;
 		}
 	  if (i - 1 >= 0)
 		{
-		  if (line <= program[i - 1].Number)
+		  if (line <= program[i - 1].num)
 			{
 			  fprintf (stderr, "Line %d: Wrong line number\n", i++);
 			  break;
 			}
 		}
-	  program[i].Number = line;
+	  program[i].num = line;
       char* command;
 	  ptr = strtok (NULL," ");
 	  command = ptr;
 	  char* arguments;
 	  ptr = strtok (NULL, "");
 	  arguments = ptr;
-	  program[i].Address = assemblerCommandCounter;
+	  program[i].address = assemblerCommandCounter;
       if (strcmp (command,"GOTO") != 0)
 		{
 		  function(command, arguments);
@@ -244,21 +245,20 @@ basic_translate ()
 	  else
 		{
 		  gotoCounter++;
-		  //gotoRecords = realloc(gotoRecords, sizeof(struct command) * gotoCounter + 1);
-		  gotoRecords[gotoCounter].Number = program[i].Number;
-		  gotoRecords[gotoCounter].Command = program[i].Command;
-		  gotoRecords[gotoCounter].Address = program[i].Address;
+		  gotoRecords[gotoCounter].num = program[i].num;
+		  gotoRecords[gotoCounter].command = program[i].command;
+		  gotoRecords[gotoCounter].address = program[i].address;
 		  assemblerCommandCounter++;
 		}
 	}
   for (int i = 0; i <= gotoCounter; i++)
 	{
-	  int address = gotoRecords[i].Address;
-	  char* ptr = strtok (gotoRecords[i].Command," ");
+	  int address = gotoRecords[i].address;
+	  char* ptr = strtok (gotoRecords[i].command," ");
 	  ptr = strtok (NULL, " ");
 	  ptr = strtok (NULL, "");
 	  int operand = atoi (ptr);
-	  GOTO (address,operand);
+	  GOTO (address, operand);
 	}
 }
 
@@ -287,14 +287,14 @@ PRINT (char *arguments)
 }
 
 void
-parsRPN (char* rpn, char* var)
+parseRPN (char* rpn, char* var)
 {
   int i = 0, depth = 0, operand1, operand2;
   char memoryCounter = '1';
   while (rpn[i] != '\0' && rpn[i] != '\n')
     {
       char x = rpn[i];
-      if ((x >= 'a' && x <= 'z') || x >= 'A' && x <= 'Z')
+      if ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'))
         {
             fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter, getVariableAddress (x));
             assemblerCommandCounter++;
@@ -357,9 +357,9 @@ GOTO (int address,int operand)
 {
   for (int i = 0; i < basicCommandCouner; i++)
 	{
-	  if (program[i].Number == operand)
+	  if (program[i].num == operand)
 		{
-		  fprintf (output, "%.2i JUMP %d\n",address, program[i].Address);
+		  fprintf (output, "%.2i JUMP %d\n", address, program[i].address);
 		  return;
 		}
 	}
@@ -390,7 +390,7 @@ IF (char* arguments)
   char* expression = (char*)malloc (sizeof (char) * 255);
   if (!(before) && !(after))
 	{
-	  expression = strtok (arguments,"");
+	  expression = strtok (arguments, "");
 	}
   else
 	{
@@ -526,10 +526,10 @@ IF (char* arguments)
 	  gotoCounter++;
 	  gotoRecords = realloc (gotoRecords, sizeof (struct command) * gotoCounter + 1);
 	  struct command gotoCommand;
-	  gotoCommand.Address = assemblerCommandCounter;
+	  gotoCommand.address = assemblerCommandCounter;
 	  char* buff = (char*)malloc (sizeof (char) * 255);
 	  sprintf (buff,"%d GOTO %s",falsePosition,commandArguments);
-	  gotoCommand.Command = buff;
+	  gotoCommand.command = buff;
 	  gotoRecords[gotoCounter] = gotoCommand;
 	  assemblerCommandCounter++;
 	}
@@ -543,7 +543,7 @@ LET (char* arguments)
   char var;
   var = preCalcProcessing (arguments);
   translateToRPN (arguments, fin);
-  parsRPN (fin, var);
+  parseRPN (fin, var);
 }
 
 void
@@ -568,7 +568,7 @@ function (char* command, char* arguments)
 	{
 	  PRINT (arguments);
 	} 
-  else if (strcmp (command," IF") == 0)
+  else if (strcmp (command, "IF") == 0)
 	{
 	  IF (arguments);
 	}
