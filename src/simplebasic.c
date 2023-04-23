@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "translator.h"
+#include "rpn.h"
 
 void INPUT (char* arguments);
 void PRINT (char* arguments);
@@ -38,12 +38,9 @@ struct command
 FILE *input = NULL;
 FILE *output = NULL;
 
-const char commandID[][7] = {"REM", "INPUT", "PRINT","GOTO","IF","LET","END"};
-int basicCommandCouner = 0;
-int assemblerCommandCounter = 0;
-struct command* program;
-
-int gotoCounter = -1;
+const char commandID[][7] = {"REM", "INPUT", "PRINT", "GOTO", "IF", "LET", "END"};
+int basicCommandCouner = 0, assemblerCommandCounter = 0, gotoCounter = -1;
+struct command *program;
 struct command *gotoRecords;
 
 int
@@ -131,7 +128,7 @@ preCalcProcessing (char* expr)
         assign[m] = exp[k];
 		m++;
     }
-  if (operat == 0)//0+ перед ним, если перед минусом нет аргумента, то пишем 0 перед миунсом
+  if (operat == 0) // 0+ перед ним, если перед минусом нет аргумента, то пишем 0 перед миунсом
     {
       sprintf (exp, "0 + %s", assign);
     }
@@ -167,21 +164,20 @@ preCalcProcessing (char* expr)
 }
 
 void
-loadFile (const char* filename, const char* secondFilename)
+loadFile (const char* input_file, const char* output_file)
 {
-  if ((input = fopen (filename, "r")) == NULL)
+  if ((input = fopen (input_file, "r")) == NULL)
 	{
-	  fprintf (stderr, "Can't open file: no such file.\n");
+	  fprintf (stderr, "Input file '%s' does not exist\n", input_file);
 	  exit (EXIT_FAILURE);
 	}
-  output = fopen (secondFilename,"w");
-  return;
+  output = fopen (output_file, "w");
 }
 
 void
-translation ()
+basic_translate ()
 {
-  int instructionCounter =1;
+  int instructionCounter = 1;
   while (1)
 	{
 	  char temp[255];
@@ -538,7 +534,6 @@ IF (char* arguments)
 	  assemblerCommandCounter++;
 	}
   fprintf (output, "%.2i JUMP %d\n", falsePosition, assemblerCommandCounter);
-  //assemblerCommandCounter++;
 }
 
 void
@@ -554,29 +549,30 @@ LET (char* arguments)
 void
 END ()
 {
-  fprintf(output, "%.2i HALT 00\n", assemblerCommandCounter);
+  fprintf (output, "%.2i HALT 00\n", assemblerCommandCounter);
   assemblerCommandCounter++;
 }
 
-void function(char* command, char* arguments)
+void
+function (char* command, char* arguments)
 {
-  if (strcmp(command,"REM") == 0)
+  if (strcmp (command, "REM") == 0)
 	{
 
 	}
-  else if (strcmp(command,"INPUT") == 0)
+  else if (strcmp (command, "INPUT") == 0)
 	{
 	  INPUT (arguments);
 	}
-  else if (strcmp(command,"PRINT") == 0)
+  else if (strcmp (command, "PRINT") == 0)
 	{
 	  PRINT (arguments);
 	} 
-  else if (strcmp(command,"IF") == 0)
+  else if (strcmp (command," IF") == 0)
 	{
 	  IF (arguments);
 	}
-  else if (strcmp (command,"LET") == 0)
+  else if (strcmp (command, "LET") == 0)
 	{
 	  LET (arguments);
 	}
@@ -595,28 +591,12 @@ main(int argc, const char** argv)
 {
   if (argc < 3)
 	{
-	  fprintf (stderr, "Usage: %s input.sa output.o\n", argv[0]);
+	  fprintf (stderr, "Usage: %s <input_basic_file.sb> <output_assembler_file.sa>\n", argv[0]);
 	  exit (EXIT_FAILURE);
 	}
-  loadFile (argv[1], "tmp.sa");
-  translation ();
+  loadFile (argv[1], argv[2]);
+  basic_translate ();
   fclose (input);
   fclose (output);
-  if (variableCount + assemblerCommandCounter > 100)
-	{
-	  fprintf (stderr, "RAM overflow error!\n");
-	  system ("rm -rf tmp.sa");
-	}
-  char sat[255];
-  sprintf (sat,"./sat tmp.sa %s\n", argv[2]);
-  system (sat);
-  if (argc >= 4)
-	{
-	  if (argv[3][0] == '1')
-		{
-		  return 0;
-		}
-	}
-  system ("rm -rf tmp.sa");
   return 0;
 }
