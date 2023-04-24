@@ -78,7 +78,7 @@ intToConstant (int value)
           fprintf (output, "%.2i = %04x\n", assemblerCommandCounter,
                    abs (variables[i].value));
           variableCount++;
-		  assemblerCommandCounter++;
+          assemblerCommandCounter++;
           return variables[i].name;
         }
       if (variables[i].value != NULL)
@@ -273,7 +273,7 @@ void
 INPUT (char *arguments)
 {
   if ((strlen (arguments) != 2) || (arguments[0] < 'A')
-        || (arguments[0] > 'Z'))
+      || (arguments[0] > 'Z'))
     {
       fprintf (stderr, "Wrong variable name\n");
       exit (EXIT_FAILURE);
@@ -287,7 +287,7 @@ void
 PRINT (char *arguments)
 {
   if ((strlen (arguments) != 2) || (arguments[0] < 'A')
-        || (arguments[0] > 'Z'))
+      || (arguments[0] > 'Z'))
     {
       fprintf (stderr, "Wrong variable name.\n");
       exit (EXIT_FAILURE);

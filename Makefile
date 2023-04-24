@@ -10,6 +10,10 @@ lib/tui.a: obj/tui.o obj/bc.o obj/sig.o
 	$(DIRGUARD)
 	ar rcs $@ $^
 
+lib/cu.a: obj/cu.o obj/alu.o
+	$(DIRGUARD)
+	ar rcs $@ $^
+
 lib/%.a: obj/%.o
 	$(DIRGUARD)
 	ar rcs $@ $<
