@@ -8,7 +8,7 @@ void PRINT (char *arguments);
 void IF (char *arguments);
 void GOTO (int address, int operand);
 void function (char *command, char *arguments);
-void parseRPN (char *rpn, char *var);
+void parseRPN (char *rpn, char var);
 void LET (char *arguments);
 void END ();
 
@@ -45,7 +45,7 @@ struct command *program;
 struct command *gotoRecords;
 
 int
-getVariableAddress (char *name)
+getVariableAddress (char name)
 {
   for (int i = 0; i < 52; i++)
     {
@@ -75,9 +75,10 @@ intToConstant (int value)
           lastConstantName++;
           variables[i].address = 99 - i;
           variables[i].value = value;
-          fprintf (output, "%.2i = %x\n", variables[i].address,
+          fprintf (output, "%.2i = %04x\n", assemblerCommandCounter,
                    abs (variables[i].value));
           variableCount++;
+		  assemblerCommandCounter++;
           return variables[i].name;
         }
       if (variables[i].value != NULL)
@@ -95,19 +96,19 @@ preCalcProcessing (char *expr)
 {
   char *ptr = strtok (expr, " =");
   char val;
-  sscanf (ptr, "%c", &val);
-  if (!((val) >= 'A' && (val) <= 'Z'))
+  sscanf (ptr, "%s", &val);
+  if (val < 'A' || val > 'Z')
     {
-      fprintf (stderr, "NOT CORRECT\n");
+      fprintf (stderr, "Incorrect variable\n");
       exit (EXIT_FAILURE);
     }
   ptr = strtok (NULL, " ");
-  char *eq = ptr;
-  /*if (strcmp (eq, "=") != 0)
+  char *equal = ptr;
+  if (strcmp (equal, "=") != 0)
     {
-      fprintf (stderr, "Wrong expression!\n");
+      fprintf (stderr, "Wrong expression\n");
       exit (EXIT_FAILURE);
-    }*/
+    }
   ptr = strtok (NULL, "");
   char *exp = ptr;
   int i = 0, j = 0, pos = 0, operat = 0, flg = 1, m = 0;
@@ -210,7 +211,7 @@ basic_translate ()
             }
           else
             {
-              fprintf (stderr, "Line %d: can't read line from file.\n", i++);
+              fprintf (stderr, "Line %d: can't read line from file\n", i++);
               return;
             }
         }
@@ -223,16 +224,16 @@ basic_translate ()
       char *ptr = strtok (thisCommand, " ");
       lin = ptr;
       int line = atoi (lin);
-      if ((strcmp (lin, "0") == 0) && (strcmp (lin, "00") == 0))
+      if ((strcmp (lin, "0") == 0) || (strcmp (lin, "00") == 0))
         {
-          fprintf (stderr, "Line %d: expected line number.\n", i++);
+          fprintf (stderr, "Line %d: expected line number\n", i++);
           break;
         }
       if (i - 1 >= 0)
         {
           if (line <= program[i - 1].num)
             {
-              fprintf (stderr, "Line %d: Wrong line number\n", i++);
+              fprintf (stderr, "Line %d: wrong line number\n", i++);
               break;
             }
         }
@@ -271,10 +272,10 @@ basic_translate ()
 void
 INPUT (char *arguments)
 {
-  if (!((strlen (arguments) == 2) && (arguments[0] >= 'A')
-        && (arguments[0] <= 'Z')))
+  if ((strlen (arguments) != 2) || (arguments[0] < 'A')
+        || (arguments[0] > 'Z'))
     {
-      fprintf (stderr, "Wrong variable name.\n");
+      fprintf (stderr, "Wrong variable name\n");
       exit (EXIT_FAILURE);
     }
   fprintf (output, "%.2i READ %d\n", assemblerCommandCounter,
@@ -285,8 +286,8 @@ INPUT (char *arguments)
 void
 PRINT (char *arguments)
 {
-  if (!((strlen (arguments) == 2) && (arguments[0] >= 'A')
-        && (arguments[0] <= 'Z')))
+  if ((strlen (arguments) != 2) || (arguments[0] < 'A')
+        || (arguments[0] > 'Z'))
     {
       fprintf (stderr, "Wrong variable name.\n");
       exit (EXIT_FAILURE);
@@ -297,7 +298,7 @@ PRINT (char *arguments)
 }
 
 void
-parseRPN (char *rpn, char *var)
+parseRPN (char *rpn, char var)
 {
   int i = 0, depth = 0, operand1, operand2;
   char memoryCounter = '1';
@@ -319,8 +320,7 @@ parseRPN (char *rpn, char *var)
         {
           if (depth < 2)
             {
-              fprintf (stderr,
-                       "Uncorrect LET statement, check your expression.\n");
+              fprintf (stderr, "Incorrect LET statement\n");
               exit (EXIT_FAILURE);
             }
           else
@@ -328,7 +328,7 @@ parseRPN (char *rpn, char *var)
               operand1 = getVariableAddress (memoryCounter - 2);
               operand2 = getVariableAddress (memoryCounter - 1);
               fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-                       operand1); // закидываем самый правый операнд в акк
+                       operand1); // right operand goes to accum
               assemblerCommandCounter++;
               switch (x)
                 {
@@ -364,7 +364,7 @@ parseRPN (char *rpn, char *var)
     }
   if (depth != 1)
     {
-      fprintf (stderr, "Uncorrect LET statement, check your expression.\n");
+      fprintf (stderr, "Incorrect LET statement\n");
       exit (EXIT_FAILURE);
     }
   fprintf (output, "%.2i STORE %d\n", assemblerCommandCounter,
@@ -383,7 +383,7 @@ GOTO (int address, int operand)
           return;
         }
     }
-  fprintf (stderr, "Reference to an inspecifed memory location.\n");
+  fprintf (stderr, "Reference to an inspecifed memory location\n");
   exit (EXIT_FAILURE);
 }
 
@@ -391,7 +391,7 @@ void
 IF (char *arguments)
 {
   int mySign = -1, before = 0, after = 0;
-  for (int i = 0; i < strlen (arguments); i++)
+  for (int i = 0; i < (int)strlen (arguments); i++)
     {
       if ((arguments[i] == '>') || (arguments[i] == '<')
           || (arguments[i] == '='))
@@ -416,7 +416,7 @@ IF (char *arguments)
   else
     {
       int j = 0;
-      for (int i = 0; i < strlen (arguments); i++)
+      for (int i = 0; i < (int)strlen (arguments); i++)
         {
           if (i == mySign)
             {
@@ -463,7 +463,7 @@ IF (char *arguments)
         }
       else
         {
-          fprintf (stderr, "Wrong statement!\n");
+          fprintf (stderr, "Wrong statement\n");
           exit (EXIT_FAILURE);
         }
     }
@@ -491,7 +491,7 @@ IF (char *arguments)
         }
       else
         {
-          fprintf (stderr, "Wrong statement!\n");
+          fprintf (stderr, "Wrong statement\n");
           exit (EXIT_FAILURE);
         }
     }
@@ -544,7 +544,7 @@ IF (char *arguments)
   char *commandArguments = ptr;
   if (strcmp (command, "IF") == 0)
     {
-      fprintf (stderr, "Multiple IF!\n");
+      fprintf (stderr, "Multiple IFs\n");
       exit (EXIT_FAILURE);
     }
   else if (strcmp (command, "GOTO") != 0)
@@ -571,8 +571,7 @@ void
 LET (char *arguments)
 {
   char fin[255];
-  char var;
-  var = preCalcProcessing (arguments);
+  char var = preCalcProcessing (arguments);
   translateToRPN (arguments, fin);
   parseRPN (fin, var);
 }
