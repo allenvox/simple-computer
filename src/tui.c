@@ -245,6 +245,11 @@ g_getunit (int address, char *buff)
 {
   int val, command, operand;
   sc_memoryGet (address, &val);
+  if (val < 0)
+    {
+      sprintf (buff, "-%04x", abs (val));
+      return 0;
+    }
   char temp[6];
   int err = sc_commandDecode (val, &command, &operand);
   sprintf (temp, " %04x", val);

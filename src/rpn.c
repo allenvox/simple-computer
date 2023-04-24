@@ -31,11 +31,7 @@ stack_pop (node **top)
 char
 stack_top (node *top)
 {
-  if (top != NULL)
-    {
-      return top->data;
-    }
-  return NULL;
+  return top->data;
 }
 
 int
