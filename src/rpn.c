@@ -1,6 +1,13 @@
 #include "rpn.h"
 
 void
+errOutput (char *message)
+{
+  fprintf (stderr, message);
+  exit (EXIT_FAILURE);
+}
+
+void
 stack_push (char data, node **top)
 {
   node *tmp = (node *)malloc (sizeof (node));
@@ -41,7 +48,7 @@ checkPriority (char sign)
     {
     case '*':
     case '/':
-      return 4;
+      return 3;
     case '+':
     case '-':
       return 2;
@@ -98,8 +105,7 @@ translateToRPN (char *inf, char *rpn)
         }
       else if (x != ' ')
         {
-          fprintf (stderr, "Wrong expression\n");
-          exit (EXIT_FAILURE);
+          errOutput("Wrong expression\n");
         }
       i++;
     }
@@ -116,8 +122,7 @@ translateToRPN (char *inf, char *rpn)
     {
       if (rpn[k] == '(' || rpn[k] == ')')
         {
-          fprintf (stderr, "Check your expression!\n");
-          exit (EXIT_FAILURE);
+          errOutput ("Check your expression!\n");
         }
     }
   rpn[j] = '\0';

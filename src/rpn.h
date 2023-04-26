@@ -11,6 +11,8 @@ typedef struct node
   struct node *next;
 } node;
 
+void errOutput (char *message);
+
 // stack machine functions
 void stack_push (char data, node **top);
 void stack_print (node *top);

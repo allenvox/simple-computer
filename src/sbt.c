@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+int basic_counter = 0, assembler_counter = 0;
 FILE *input = NULL, *output = NULL;
 
 void
@@ -10,10 +11,16 @@ loadFiles (const char *input_file, const char *output_file)
 {
   if ((input = fopen (input_file, "r")) == NULL)
     {
-      fprintf (stderr, "Input file '%s' does not exist\n", input_file);
-      exit (EXIT_FAILURE);
+      errOutput ("Input file does not exist\n");
     }
   output = fopen (output_file, "w");
+}
+
+void
+assemblerOutput (char *cmd, int operand)
+{
+  fprintf (output, "%.2i %s %d\n", assembler_counter, cmd, operand);
+  assembler_counter++;
 }
 
 int
@@ -27,12 +34,9 @@ INPUT (char var)
 {
   if (!isVariable(var))
     {
-      fprintf (stderr, "Wrong variable name\n");
-      exit (EXIT_FAILURE);
+      errOutput("Wrong variable name\n");
     }
-  fprintf (output, "%.2i READ %d\n", assemblerCommandCounter,
-           getVariableAddress (var));
-  assemblerCommandCounter++;
+  assemblerOutput("READ", getVariableAddress(var));
 }
 
 void
@@ -40,19 +44,15 @@ PRINT (char var)
 {
   if (!isVariable(var))
     {
-      fprintf (stderr, "Wrong variable name.\n");
-      exit (EXIT_FAILURE);
+      errOutput ("Wrong variable name.\n");
     }
-  fprintf (output, "%.2i WRITE %d\n", assemblerCommandCounter,
-           getVariableAddress (var));
-  assemblerCommandCounter++;
+  assemblerOutput ("WRITE", getVariableAddress(var));
 }
 
 void
 END ()
 {
-  fprintf (output, "%.2i HALT 00\n", assemblerCommandCounter);
-  assemblerCommandCounter++;
+  assemblerOutput ("HALT", 0);
 }
 
 /*void INPUT (char *arguments);
@@ -82,7 +82,7 @@ typedef struct command
   int address;
 } command;
 
-int basicCommandCouner = 0, assemblerCommandCounter = 0, gotoCounter = -1;
+int gotoCounter = -1;
 command *program, *gotoRecords;
 
 int
@@ -116,10 +116,8 @@ intToConstant (int value)
           lastConstantName++;
           variables[i].address = 99 - i;
           variables[i].value = value;
-          fprintf (output, "%.2i = %04x\n", assemblerCommandCounter,
-                   abs (variables[i].value));
+          assemblerOutput ("=", variables[i].value);
           variableCount++;
-          assemblerCommandCounter++;
           return variables[i].name;
         }
       if (variables[i].value != NULL)
@@ -140,15 +138,13 @@ preCalcProcessing (char *expr)
   sscanf (ptr, "%s", &val);
   if (!isVariable(val))
     {
-      fprintf (stderr, "Incorrect variable\n");
-      exit (EXIT_FAILURE);
+      errOutput ("Incorrect variable\n");
     }
   ptr = strtok (NULL, " ");
   char *equal = ptr;
   if (strcmp (equal, "=") != 0)
     {
-      fprintf (stderr, "Wrong expression\n");
-      exit (EXIT_FAILURE);
+      errOutput ("Wrong expression\n");
     }
   ptr = strtok (NULL, "");
   char *exp = ptr;
@@ -224,7 +220,7 @@ basic_translate ()
         }
       instructionCounter++;
     }
-  basicCommandCouner = instructionCounter;
+  basic_counter = instructionCounter;
   rewind (input);
   program = (command *)malloc (sizeof (command) * instructionCounter);
   gotoRecords = (command *)malloc (sizeof (command) * instructionCounter);
@@ -272,7 +268,7 @@ basic_translate ()
       char *arguments;
       ptr = strtok (NULL, "");
       arguments = ptr;
-      program[i].address = assemblerCommandCounter;
+      program[i].address = assembler_counter;
       if (strcmp (command, "GOTO") != 0)
         {
           function (command, arguments);
@@ -283,7 +279,7 @@ basic_translate ()
           gotoRecords[gotoCounter].num = program[i].num;
           gotoRecords[gotoCounter].command = program[i].command;
           gotoRecords[gotoCounter].address = program[i].address;
-          assemblerCommandCounter++;
+          assembler_counter++;
         }
     }
   for (int i = 0; i <= gotoCounter; i++)
@@ -307,55 +303,38 @@ parseRPN (char *rpn, char var)
       char x = rpn[i];
       if ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'))
         {
-          fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-                   getVariableAddress (x));
-          assemblerCommandCounter++;
-          fprintf (output, "%.2i STORE %d\n", assemblerCommandCounter,
-                   getVariableAddress (memoryCounter));
+          assemblerOutput ("LOAD", getVariableAddress (x));
+          assemblerOutput ("STORE", getVariableAddress (memoryCounter));
           memoryCounter++;
-          assemblerCommandCounter++;
           depth++;
         }
       if (x == '+' || x == '-' || x == '*' || x == '/')
         {
           if (depth < 2)
             {
-              fprintf (stderr, "Incorrect LET statement\n");
-              exit (EXIT_FAILURE);
+              errOutput ("Incorrect LET statement\n");
             }
           else
             {
               operand1 = getVariableAddress (memoryCounter - 2);
               operand2 = getVariableAddress (memoryCounter - 1);
-              fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-                       operand1); // right operand goes to accum
-              assemblerCommandCounter++;
+              assemblerOutput ("LOAD", operand1);
               switch (x)
                 {
                 case '+': // summation
-                  fprintf (output, "%.2i ADD %d\n", assemblerCommandCounter,
-                           operand2);
-                  assemblerCommandCounter++;
+                  assemblerOutput ("ADD", operand2);
                   break;
                 case '-': // substraction
-                  fprintf (output, "%.2i SUB %d\n", assemblerCommandCounter,
-                           operand2);
-                  assemblerCommandCounter++;
+                  assemblerOutput ("SUB", operand2);
                   break;
                 case '/': // division
-                  fprintf (output, "%.2i DIVIDE %d\n", assemblerCommandCounter,
-                           operand2);
-                  assemblerCommandCounter++;
+                  assemblerOutput ("DIVIDE", operand2);
                   break;
                 case '*': // multiplication
-                  fprintf (output, "%.2i MUL %d\n", assemblerCommandCounter,
-                           operand2);
-                  assemblerCommandCounter++;
+                  assemblerOutput ("MUL", operand2);
                   break;
                 }
-              fprintf (output, "%.2i STORE %d\n", assemblerCommandCounter,
-                       getVariableAddress (memoryCounter - 2));
-              assemblerCommandCounter++;
+              assemblerOutput ("STORE", getVariableAddress (memoryCounter - 2));
               depth--;
               memoryCounter = memoryCounter - 1;
             }
@@ -364,22 +343,19 @@ parseRPN (char *rpn, char var)
     }
   if (depth != 1)
     {
-      fprintf (stderr, "Incorrect LET statement\n");
-      exit (EXIT_FAILURE);
+      errOutput ("Incorrect LET statement\n");
     }
-  fprintf (output, "%.2i STORE %d\n", assemblerCommandCounter,
-           getVariableAddress (var));
-  assemblerCommandCounter++;
+  assemblerOutput ("STORE", getVariableAddress (var));
 }
 
 void
 GOTO (int address, int operand)
 {
-  for (int i = 0; i < basicCommandCouner; i++)
+  for (int i = 0; i < basic_counter; i++)
     {
       if (program[i].num == operand)
         {
-          fprintf (output, "%.2i JUMP %d\n", address, program[i].address);
+          assemblerOutput ("JUMP", program[i].address);
         }
     }
   fprintf (stderr, "Reference to an inspecifed memory location\n");
@@ -483,58 +459,39 @@ IF (char *arguments)
         {
           operand2Name = intToConstant (atoi (operand2));
         }
-      else if ((operand2[0] >= 'A') && (operand2[0] <= 'Z'))
+      else if (isVariable(operand2))
         {
           operand2Name = operand2[0];
         }
       else
         {
-          fprintf (stderr, "Wrong statement\n");
-          exit (EXIT_FAILURE);
+          errOutput ("Wrong statement\n");
         }
     }
   int falsePosition = -1;
   if (logicalSign[0] == '<')
     {
-      fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-               getVariableAddress (operand1Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i SUB %d\n", assemblerCommandCounter,
-               getVariableAddress (operand2Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i JNEG %d\n", assemblerCommandCounter,
-               assemblerCommandCounter + 2);
-      assemblerCommandCounter++;
-      falsePosition = assemblerCommandCounter;
-      assemblerCommandCounter++;
+      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
+      assemblerOutput ("SUB", getVariableAddress (operand2Name));
+      assemblerOutput ("JNEG", assembler_counter + 2);
+      falsePosition = assembler_counter;
+      assembler_counter++;
     }
   else if (logicalSign[0] == '>')
     {
-      fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-               getVariableAddress (operand2Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i SUB %d\n", assemblerCommandCounter,
-               getVariableAddress (operand1Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i JNEG %d\n", assemblerCommandCounter,
-               assemblerCommandCounter + 2);
-      assemblerCommandCounter++;
-      falsePosition = assemblerCommandCounter;
-      assemblerCommandCounter++;
+      assemblerOutput ("LOAD", getVariableAddress (operand2Name));
+      assemblerOutput ("SUB", getVariableAddress (operand1Name));
+      assemblerOutput ("JNEG", assembler_counter + 2);
+      falsePosition = assembler_counter;
+      assembler_counter++;
     }
   else if (logicalSign[0] == '=')
     {
-      fprintf (output, "%.2i LOAD %d\n", assemblerCommandCounter,
-               getVariableAddress (operand1Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i SUB %d\n", assemblerCommandCounter,
-               getVariableAddress (operand2Name));
-      assemblerCommandCounter++;
-      fprintf (output, "%.2i JZ %d\n", assemblerCommandCounter,
-               assemblerCommandCounter + 2);
-      assemblerCommandCounter++;
-      falsePosition = assemblerCommandCounter;
-      assemblerCommandCounter++;
+      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
+      assemblerOutput ("SUB", getVariableAddress (operand2Name));
+      assemblerOutput ("JZ", assembler_counter + 2);
+      falsePosition = assembler_counter;
+      assembler_counter++;
     }
   ptr = strtok (NULL, " ");
   char *command = ptr;
@@ -542,8 +499,7 @@ IF (char *arguments)
   char *commandArguments = ptr;
   if (strcmp (command, "IF") == 0)
     {
-      fprintf (stderr, "Multiple IFs\n");
-      exit (EXIT_FAILURE);
+      errOutput ("Multiple IFs");
     }
   else if (strcmp (command, "GOTO") != 0)
     {
@@ -555,14 +511,14 @@ IF (char *arguments)
       gotoRecords
           = realloc (gotoRecords, sizeof (command) * gotoCounter + 1);
       command gotoCommand;
-      gotoCommand.address = assemblerCommandCounter;
+      gotoCommand.address = assembler_counter;
       char *buff = (char *)malloc (sizeof (char) * 255);
       sprintf (buff, "%d GOTO %s", falsePosition, commandArguments);
       gotoCommand.command = buff;
       gotoRecords[gotoCounter] = gotoCommand;
-      assemblerCommandCounter++;
+      assembler_counter++;
     }
-  fprintf (output, "%.2i JUMP %d\n", falsePosition, assemblerCommandCounter);
+  fprintf (output, "%.2i JUMP %d\n", falsePosition, assembler_counter);
 }
 
 void
