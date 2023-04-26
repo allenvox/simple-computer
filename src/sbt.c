@@ -3,46 +3,87 @@
 #include <stdlib.h>
 #include <string.h>
 
-void INPUT (char *arguments);
+FILE *input = NULL, *output = NULL;
+
+void
+loadFiles (const char *input_file, const char *output_file)
+{
+  if ((input = fopen (input_file, "r")) == NULL)
+    {
+      fprintf (stderr, "Input file '%s' does not exist\n", input_file);
+      exit (EXIT_FAILURE);
+    }
+  output = fopen (output_file, "w");
+}
+
+int
+isVariable (char name)
+{
+  return (name >= 'A' || name <= 'Z');
+}
+
+void
+INPUT (char var)
+{
+  if (!isVariable(var))
+    {
+      fprintf (stderr, "Wrong variable name\n");
+      exit (EXIT_FAILURE);
+    }
+  fprintf (output, "%.2i READ %d\n", assemblerCommandCounter,
+           getVariableAddress (var));
+  assemblerCommandCounter++;
+}
+
+void
+PRINT (char var)
+{
+  if (!isVariable(var))
+    {
+      fprintf (stderr, "Wrong variable name.\n");
+      exit (EXIT_FAILURE);
+    }
+  fprintf (output, "%.2i WRITE %d\n", assemblerCommandCounter,
+           getVariableAddress (var));
+  assemblerCommandCounter++;
+}
+
+void
+END ()
+{
+  fprintf (output, "%.2i HALT 00\n", assemblerCommandCounter);
+  assemblerCommandCounter++;
+}
+
+/*void INPUT (char *arguments);
 void PRINT (char *arguments);
 void IF (char *arguments);
 void GOTO (int address, int operand);
 void function (char *command, char *arguments);
 void parseRPN (char *rpn, char var);
 void LET (char *arguments);
-void END ();
+void END ();*/
 
-#define ERR_EXPECTED_ADDRESS_OF_MEMORY_CELL -1
-#define ERR_WRONG_COMMAND -2
-#define ERR_WRONG_OPERAND -3
-#define ERR_BY_ENCODE -4
-
-struct variable
+typedef struct variable
 {
   char name;
   int address;
   int value;
-};
+} variable;
 
-struct variable variables[52];
+variable variables[52];
 int variableCount = 0;
 char lastConstantName = 'a';
 
-struct command
+typedef struct command
 {
   int num;
   char *command;
   int address;
-};
+} command;
 
-FILE *input = NULL;
-FILE *output = NULL;
-
-const char commandID[][7]
-    = { "REM", "INPUT", "PRINT", "GOTO", "IF", "LET", "END" };
 int basicCommandCouner = 0, assemblerCommandCounter = 0, gotoCounter = -1;
-struct command *program;
-struct command *gotoRecords;
+command *program, *gotoRecords;
 
 int
 getVariableAddress (char name)
@@ -97,7 +138,7 @@ preCalcProcessing (char *expr)
   char *ptr = strtok (expr, " =");
   char val;
   sscanf (ptr, "%s", &val);
-  if (val < 'A' || val > 'Z')
+  if (!isVariable(val))
     {
       fprintf (stderr, "Incorrect variable\n");
       exit (EXIT_FAILURE);
@@ -170,17 +211,6 @@ preCalcProcessing (char *expr)
 }
 
 void
-loadFile (const char *input_file, const char *output_file)
-{
-  if ((input = fopen (input_file, "r")) == NULL)
-    {
-      fprintf (stderr, "Input file '%s' does not exist\n", input_file);
-      exit (EXIT_FAILURE);
-    }
-  output = fopen (output_file, "w");
-}
-
-void
 basic_translate ()
 {
   int instructionCounter = 1;
@@ -196,10 +226,8 @@ basic_translate ()
     }
   basicCommandCouner = instructionCounter;
   rewind (input);
-  program = (struct command *)malloc (sizeof (struct command)
-                                      * instructionCounter);
-  gotoRecords = (struct command *)malloc (sizeof (struct command)
-                                          * instructionCounter);
+  program = (command *)malloc (sizeof (command) * instructionCounter);
+  gotoRecords = (command *)malloc (sizeof (command) * instructionCounter);
   for (int i = 0; i < instructionCounter; i++)
     {
       program[i].command = (char *)malloc (sizeof (char) * 255);
@@ -212,7 +240,7 @@ basic_translate ()
           else
             {
               fprintf (stderr, "Line %d: can't read line from file\n", i++);
-              return;
+              exit (EXIT_FAILURE);
             }
         }
     }
@@ -227,14 +255,14 @@ basic_translate ()
       if ((strcmp (lin, "0") == 0) || (strcmp (lin, "00") == 0))
         {
           fprintf (stderr, "Line %d: expected line number\n", i++);
-          break;
+          exit (EXIT_FAILURE);
         }
       if (i - 1 >= 0)
         {
           if (line <= program[i - 1].num)
             {
               fprintf (stderr, "Line %d: wrong line number\n", i++);
-              break;
+              exit (EXIT_FAILURE);
             }
         }
       program[i].num = line;
@@ -267,34 +295,6 @@ basic_translate ()
       int operand = atoi (ptr);
       GOTO (address, operand);
     }
-}
-
-void
-INPUT (char *arguments)
-{
-  if ((strlen (arguments) != 2) || (arguments[0] < 'A')
-      || (arguments[0] > 'Z'))
-    {
-      fprintf (stderr, "Wrong variable name\n");
-      exit (EXIT_FAILURE);
-    }
-  fprintf (output, "%.2i READ %d\n", assemblerCommandCounter,
-           getVariableAddress (arguments[0]));
-  assemblerCommandCounter++;
-}
-
-void
-PRINT (char *arguments)
-{
-  if ((strlen (arguments) != 2) || (arguments[0] < 'A')
-      || (arguments[0] > 'Z'))
-    {
-      fprintf (stderr, "Wrong variable name.\n");
-      exit (EXIT_FAILURE);
-    }
-  fprintf (output, "%.2i WRITE %d\n", assemblerCommandCounter,
-           getVariableAddress (arguments[0]));
-  assemblerCommandCounter++;
 }
 
 void
@@ -380,11 +380,9 @@ GOTO (int address, int operand)
       if (program[i].num == operand)
         {
           fprintf (output, "%.2i JUMP %d\n", address, program[i].address);
-          return;
         }
     }
   fprintf (stderr, "Reference to an inspecifed memory location\n");
-  exit (EXIT_FAILURE);
 }
 
 void
@@ -555,8 +553,8 @@ IF (char *arguments)
     {
       gotoCounter++;
       gotoRecords
-          = realloc (gotoRecords, sizeof (struct command) * gotoCounter + 1);
-      struct command gotoCommand;
+          = realloc (gotoRecords, sizeof (command) * gotoCounter + 1);
+      command gotoCommand;
       gotoCommand.address = assemblerCommandCounter;
       char *buff = (char *)malloc (sizeof (char) * 255);
       sprintf (buff, "%d GOTO %s", falsePosition, commandArguments);
@@ -574,13 +572,6 @@ LET (char *arguments)
   char var = preCalcProcessing (arguments);
   translateToRPN (arguments, fin);
   parseRPN (fin, var);
-}
-
-void
-END ()
-{
-  fprintf (output, "%.2i HALT 00\n", assemblerCommandCounter);
-  assemblerCommandCounter++;
 }
 
 void
@@ -625,7 +616,7 @@ main (int argc, const char **argv)
                argv[0]);
       exit (EXIT_FAILURE);
     }
-  loadFile (argv[1], argv[2]);
+  loadFiles (argv[1], argv[2]);
   basic_translate ();
   fclose (input);
   fclose (output);
