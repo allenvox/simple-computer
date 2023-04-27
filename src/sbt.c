@@ -83,7 +83,7 @@ typedef struct command
 } command;
 
 int gotoCounter = -1;
-command *program, *gotoRecords;
+command *gotoRecords;
 
 int
 getVariableAddress (char name)
@@ -206,10 +206,13 @@ preCalcProcessing (char *expr)
   return val;
 }
 
+command *all_commands_array;
+
 void
 basic_translate ()
 {
-  int instructionCounter = 1;
+  // counting all instructions
+  int instructions_counter = 1;
   while (1)
     {
       char temp[255];
@@ -218,67 +221,110 @@ basic_translate ()
         {
           break;
         }
-      instructionCounter++;
+      instructions_counter++;
     }
-  basic_counter = instructionCounter;
-  rewind (input);
-  program = (command *)malloc (sizeof (command) * instructionCounter);
-  gotoRecords = (command *)malloc (sizeof (command) * instructionCounter);
-  for (int i = 0; i < instructionCounter; i++)
+  basic_counter = instructions_counter;
+
+  rewind (input); // return to the beggining of input file
+
+  all_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
+  //gotoRecords = (command *)malloc (sizeof (command) * instructions_counter);
+
+  // fill command str to command structure
+  for (int i = 0; i < instructions_counter; i++)
     {
-      program[i].command = (char *)malloc (sizeof (char) * 255);
-      if (!fgets (program[i].command, 254, input))
+      all_commands_array[i].command = (char *)malloc (sizeof (char) * 255);
+      if (!fgets (all_commands_array[i].command, 254, input))
         {
           if (feof (input))
             {
-              return;
+              break;
             }
           else
             {
-              fprintf (stderr, "Line %d: can't read line from file\n", i++);
-              exit (EXIT_FAILURE);
+              char errMsg[64];
+              sprintf (errMsg, "Can't read line %d from input file\n", i);
+              errOutput (errMsg);
             }
         }
     }
-  for (int i = 0; i < instructionCounter; i++)
+  
+  for (int i = 0; i < instructions_counter; i++)
     {
-      char *lin;
-      char *thisCommand = (char *)malloc (sizeof (char) * 255);
-      sprintf (thisCommand, "%s", program[i].command);
-      char *ptr = strtok (thisCommand, " ");
-      lin = ptr;
-      int line = atoi (lin);
-      if ((strcmp (lin, "0") == 0) || (strcmp (lin, "00") == 0))
+      char *this_command = (char *)malloc (sizeof (char) * 255);
+      sprintf (this_command, "%s", all_commands_array[i].command);
+
+      char *ptr = strtok (this_command, " ");
+      char *line_num_str = ptr;
+
+      // basic command structure: LINE_NUM COMMAND VARIABLE [GOTO LINE_NUM]
+      // check on correct
+      if ((strcmp (line_num_str, "0") == 0) || (strcmp (line_num_str, "00") == 0))
         {
-          fprintf (stderr, "Line %d: expected line number\n", i++);
-          exit (EXIT_FAILURE);
+          char errMsg[64];
+          sprintf (errMsg, "Expected line number on line %d\n", i);
+          errOutput (errMsg);
         }
+      
+      // fill line number to command structure
+      int line_num_int = atoi (line_num_str);
       if (i - 1 >= 0)
         {
-          if (line <= program[i - 1].num)
+          if (line_num_int <= all_commands_array[i - 1].num)
             {
-              fprintf (stderr, "Line %d: wrong line number\n", i++);
-              exit (EXIT_FAILURE);
+              char errMsg[64];
+              sprintf (errMsg, "Wrong line number on line %d\n", i);
+              errOutput (errMsg);
             }
         }
-      program[i].num = line;
-      char *command;
+      all_commands_array[i].num = line_num_int;
+
       ptr = strtok (NULL, " ");
-      command = ptr;
-      char *arguments;
+      char *command = ptr;
+
       ptr = strtok (NULL, "");
-      arguments = ptr;
-      program[i].address = assembler_counter;
+      char *arguments = ptr;
+
+      all_commands_array[i].address = assembler_counter;
+
       if (strcmp (command, "GOTO") != 0)
         {
-          function (command, arguments);
+          if (strcmp (command, "REM") == 0)
+            {
+            }
+          else if (strcmp (command, "INPUT") == 0)
+            {
+              INPUT (arguments);
+            }
+          else if (strcmp (command, "PRINT") == 0)
+            {
+              PRINT (arguments);
+            }
+          else if (strcmp (command, "IF") == 0)
+            {
+              IF (arguments);
+            }
+          else if (strcmp (command, "LET") == 0)
+            {
+              LET (arguments);
+            }
+          else if (strcmp (command, "END") == 0)
+            {
+              END ();
+            }
+          else
+            {
+              char errMsg[64];
+              sprintf (errMsg, "Line %d: '%s' in not a valid command\n", i, command);
+              errOutput (errMsg);
+            }
         }
       else
         {
           gotoCounter++;
-          gotoRecords[gotoCounter].num = program[i].num;
-          gotoRecords[gotoCounter].command = program[i].command;
-          gotoRecords[gotoCounter].address = program[i].address;
+          gotoRecords[gotoCounter].num = all_commands_array[i].num;
+          gotoRecords[gotoCounter].command = all_commands_array[i].command;
+          gotoRecords[gotoCounter].address = all_commands_array[i].address;
           assembler_counter++;
         }
     }
@@ -353,12 +399,12 @@ GOTO (int address, int operand)
 {
   for (int i = 0; i < basic_counter; i++)
     {
-      if (program[i].num == operand)
+      if (all_commands_array[i].num == operand)
         {
-          assemblerOutput ("JUMP", program[i].address);
+          assemblerOutput ("JUMP", all_commands_array[i].address);
         }
     }
-  fprintf (stderr, "Reference to an inspecifed memory location\n");
+  errOutput ("Reference to an inspecifed memory location\n");
 }
 
 void
@@ -437,8 +483,7 @@ IF (char *arguments)
         }
       else
         {
-          fprintf (stderr, "Wrong statement\n");
-          exit (EXIT_FAILURE);
+          errOutput ("Wrong statement\n");
         }
     }
   ptr = strtok (NULL, " ");
@@ -528,38 +573,6 @@ LET (char *arguments)
   char var = preCalcProcessing (arguments);
   translateToRPN (arguments, fin);
   parseRPN (fin, var);
-}
-
-void
-function (char *command, char *arguments)
-{
-  if (strcmp (command, "REM") == 0)
-    {
-    }
-  else if (strcmp (command, "INPUT") == 0)
-    {
-      INPUT (arguments);
-    }
-  else if (strcmp (command, "PRINT") == 0)
-    {
-      PRINT (arguments);
-    }
-  else if (strcmp (command, "IF") == 0)
-    {
-      IF (arguments);
-    }
-  else if (strcmp (command, "LET") == 0)
-    {
-      LET (arguments);
-    }
-  else if (strcmp (command, "END") == 0)
-    {
-      END ();
-    }
-  else
-    {
-      fprintf (stderr, "%s is not a command.\n", command);
-    }
 }
 
 int
