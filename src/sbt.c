@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int basic_counter = 0, assembler_counter = 0;
+int basic_counter = 0, assembler_counter = 0, goto_counter = 0, variable_counter = 0;
 FILE *input = NULL, *output = NULL;
 
 void
@@ -72,7 +72,6 @@ typedef struct variable
 } variable;
 
 variable variables[52];
-int variableCount = 0;
 char lastConstantName = 'a';
 
 typedef struct command
@@ -81,9 +80,6 @@ typedef struct command
   char *command;
   int address;
 } command;
-
-int gotoCounter = -1;
-command *gotoRecords;
 
 int
 getVariableAddress (char name)
@@ -206,6 +202,7 @@ preCalcProcessing (char *expr)
   return val;
 }
 
+command *goto_commands_array;
 command *all_commands_array;
 
 void
@@ -228,7 +225,7 @@ basic_translate ()
   rewind (input); // return to the beggining of input file
 
   all_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
-  //gotoRecords = (command *)malloc (sizeof (command) * instructions_counter);
+  goto_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
 
   // fill command str to command structure
   for (int i = 0; i < instructions_counter; i++)
@@ -280,58 +277,64 @@ basic_translate ()
       all_commands_array[i].num = line_num_int;
 
       ptr = strtok (NULL, " ");
-      char *command = ptr;
+      char *cmd = ptr;
 
       ptr = strtok (NULL, "");
       char *arguments = ptr;
 
       all_commands_array[i].address = assembler_counter;
 
-      if (strcmp (command, "GOTO") != 0)
+      if (strcmp (cmd, "GOTO") != 0)
         {
-          if (strcmp (command, "REM") == 0)
+          if (strcmp (cmd, "REM") == 0)
             {
             }
-          else if (strcmp (command, "INPUT") == 0)
+          else if (strcmp (cmd, "INPUT") == 0)
             {
               INPUT (arguments);
             }
-          else if (strcmp (command, "PRINT") == 0)
+          else if (strcmp (cmd, "PRINT") == 0)
             {
               PRINT (arguments);
             }
-          else if (strcmp (command, "IF") == 0)
+          else if (strcmp (cmd, "IF") == 0)
             {
               IF (arguments);
             }
-          else if (strcmp (command, "LET") == 0)
+          else if (strcmp (cmd, "LET") == 0)
             {
               LET (arguments);
             }
-          else if (strcmp (command, "END") == 0)
+          else if (strcmp (cmd, "END") == 0)
             {
               END ();
             }
           else
             {
               char errMsg[64];
-              sprintf (errMsg, "Line %d: '%s' in not a valid command\n", i, command);
+              sprintf (errMsg, "Line %d: '%s' in not a valid command\n", i, cmd);
               errOutput (errMsg);
             }
         }
       else
         {
-          gotoCounter++;
-          gotoRecords[gotoCounter].num = all_commands_array[i].num;
-          gotoRecords[gotoCounter].command = all_commands_array[i].command;
-          gotoRecords[gotoCounter].address = all_commands_array[i].address;
+          // handling new goto
+          command new_goto;
+          new_goto.num = all_commands_array[i].num;
+          new_goto.command = all_commands_array[i].command;
+          new_goto.address = all_commands_array[i].address;
+
+          goto_commands_array[i] = new_goto;
+          goto_counter++;
           assembler_counter++;
         }
     }
-  for (int i = 0; i <= gotoCounter; i++)
+  
+  // all goto commands recovery
+  for (int i = 0; i <= goto_counter; i++)
     {
-      int address = gotoRecords[i].address;
-      char *ptr = strtok (gotoRecords[i].command, " ");
+      int address = goto_commands_array[i].address;
+      char *ptr = strtok (goto_commands_array[i].command, " ");
       ptr = strtok (NULL, " ");
       ptr = strtok (NULL, "");
       int operand = atoi (ptr);
