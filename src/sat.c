@@ -6,18 +6,92 @@
 FILE *input = NULL;
 
 void
-load_file (const char *filename)
+errOutput (char *message)
 {
-  if ((input = fopen (filename, "r")) == NULL)
-    {
-      fprintf (stderr, "Can't open file: no such file.\n");
-      exit (EXIT_FAILURE);
-    }
-  return;
+  fprintf (stderr, message);
+  exit (EXIT_FAILURE);
 }
 
 void
-translation (const char *filename)
+loadFile (const char *filename)
+{
+  if ((input = fopen (filename, "r")) == NULL)
+    {
+      errOutput ("Input file does not exist\n");
+    }
+}
+
+int
+getCommandNum (char *command)
+{
+  int result = 0;
+  if (strcmp (command, "READ") == 0)
+    {
+      result = 0x10;
+    }
+  else if (strcmp (command, "WRITE") == 0)
+    {
+      result = 0x11;
+    }
+  else if (strcmp (command, "LOAD") == 0)
+    {
+      result = 0x20;
+    }
+  else if (strcmp (command, "STORE") == 0)
+    {
+      result = 0x21;
+    }
+  else if (strcmp (command, "ADD") == 0)
+    {
+      result = 0x30;
+    }
+  else if (strcmp (command, "SUB") == 0)
+    {
+      result = 0x31;
+    }
+  else if (strcmp (command, "DIVIDE") == 0)
+    {
+      result = 0x32;
+    }
+  else if (strcmp (command, "MUL") == 0)
+    {
+      result = 0x33;
+    }
+  else if (strcmp (command, "JUMP") == 0)
+    {
+      result = 0x40;
+    }
+  else if (strcmp (command, "JNEG") == 0)
+    {
+      result = 0x41;
+    }
+  else if (strcmp (command, "JZ") == 0)
+    {
+      result = 0x42;
+    }
+  else if (strcmp (command, "HALT") == 0)
+    {
+      result = 0x43;
+    }
+  else if (strcmp (command, "AND") == 0)
+    {
+      result = 0x52;
+    }
+  else if (strcmp (command, "JNS") == 0)
+    {
+      result = 0x55;
+    }
+  else
+    {
+      char errMsg[64];
+      sprintf (errMsg, "Not recognized command %s\n", command);
+      errOutput (errMsg);
+    }
+  return result;
+}
+
+void
+writeTranslationTo (const char *filename)
 {
   for (int i = 0; !feof (input); i++)
     {
@@ -30,13 +104,13 @@ translation (const char *filename)
             }
           else
             {
-              fprintf (stderr, "Line %d: can't read line from file.\n", i++);
-              break;
+              char errMsg[64];
+              sprintf (errMsg, "Can't read line %d from input file\n", i);
+              errOutput (errMsg);
             }
         }
-      char *addr;
-      char *command;
-      char *oper;
+      
+      char *addr, *command, *oper;
       int num_of_cmd = 0, operand = 0, address = 0;
       char *ptr = strtok (line, " ");
       addr = ptr;
@@ -46,97 +120,46 @@ translation (const char *filename)
       oper = ptr;
       address = atoi (addr);
       ptr = strtok (NULL, " ");
+
       if (ptr != NULL && ptr[0] != ';')
         {
-          fprintf (stderr, "Line %d: unexpected symbols.\n", ++i);
-          break;
+          char errMsg[64];
+          sprintf (errMsg, "Unexpected symbols on line %d\n", i);
+          errOutput (errMsg);
         }
+
       if (!atoi (addr) && strcmp (addr, "00") != 0)
         {
-          fprintf (stderr, "Line %d: expected address of memory cell.\n", ++i);
-          break;
+          char errMsg[64];
+          sprintf (errMsg, "Expected address of memory cell on line %d\n", i);
+          errOutput (errMsg);
         }
+
       operand = atoi (oper);
       char buffer[255];
       sprintf (buffer, "%02x", operand);
       sscanf (buffer, "%02x", &operand);
-      if (!strcmp (command, "READ"))
-        {
-          num_of_cmd = 0x10;
-        }
-      else if (!strcmp (command, "WRITE"))
-        {
-          num_of_cmd = 0x11;
-        }
-      else if (!strcmp (command, "LOAD"))
-        {
-          num_of_cmd = 0x20;
-        }
-      else if (!strcmp (command, "STORE"))
-        {
-          num_of_cmd = 0x21;
-        }
-      else if (!strcmp (command, "ADD"))
-        {
-          num_of_cmd = 0x30;
-        }
-      else if (!strcmp (command, "SUB"))
-        {
-          num_of_cmd = 0x31;
-        }
-      else if (!strcmp (command, "DIVIDE"))
-        {
-          num_of_cmd = 0x32;
-        }
-      else if (!strcmp (command, "MUL"))
-        {
-          num_of_cmd = 0x33;
-        }
-      else if (!strcmp (command, "JUMP"))
-        {
-          num_of_cmd = 0x40;
-        }
-      else if (!strcmp (command, "JNEG"))
-        {
-          num_of_cmd = 0x41;
-        }
-      else if (!strcmp (command, "JZ"))
-        {
-          num_of_cmd = 0x42;
-        }
-      else if (!strcmp (command, "HALT"))
-        {
-          num_of_cmd = 0x43;
-        }
-      else if (!strcmp (command, "AND"))
-        {
-          num_of_cmd = 0x52;
-        }
-      else if (!strcmp (command, "JNS"))
-        {
-          num_of_cmd = 0x55;
-        }
-      else if (command[0] == '=')
+
+      if (command[0] == '=')
         {
           sscanf (oper, "%x", &operand);
           sc_memorySet (address, operand);
           continue;
         }
-      else
-        {
-          fprintf (stderr, "Line %d: wrong command.\n", ++i);
-          break;
-        }
+      num_of_cmd = getCommandNum (command);
+
+      // command encoding, correctness checking, writing to mem
       int value = 0;
       if (sc_commandEncode (num_of_cmd, operand, &value) < 0)
         {
-          fprintf (stderr,
-                   "Line %d: error by encode. Check command or operand.\n",
-                   ++i);
-          break;
+          char errMsg[64];
+          sprintf (errMsg, "Encoding error on line %d\n", i);
+          errOutput (errMsg);
         }
       sc_memorySet (address, value);
     }
+
+  // write the result memory to output file
   sc_memorySave (strdup (filename));
 }
 
@@ -145,12 +168,10 @@ main (int argc, const char **argv)
 {
   if (argc < 3)
     {
-      fprintf (stderr, "Usage: %s <input_file.sa> <output_object_file.o>\n",
-               argv[0]);
-      exit (EXIT_FAILURE);
+      errOutput ("Usage: ./sat <input_file.sa> <output_object_file.o>\n");
     }
   sc_memoryInit ();
-  load_file (argv[1]);
-  translation (argv[2]);
+  loadFile (argv[1]);
+  writeTranslationTo (argv[2]);
   return 0;
 }
