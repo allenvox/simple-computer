@@ -8,7 +8,7 @@ FILE *input = NULL;
 void
 errOutput (char *message)
 {
-  fprintf (stderr, message);
+  fprintf (stderr, "%s", message);
   exit (EXIT_FAILURE);
 }
 
@@ -109,16 +109,23 @@ writeTranslationTo (const char *filename)
               errOutput (errMsg);
             }
         }
-      
-      char *addr, *command, *oper;
-      int num_of_cmd = 0, operand = 0, address = 0;
+
       char *ptr = strtok (line, " ");
-      addr = ptr;
+      char *str_address = ptr;
+      int address = atoi (str_address);
+      if (address < 0 || address > 99)
+        {
+          char errMsg[64];
+          sprintf (errMsg, "Expected address of memory cell on line %d\n", i);
+          errOutput (errMsg);
+        }
+
       ptr = strtok (NULL, " ");
-      command = ptr;
+      char *command = ptr;
+
       ptr = strtok (NULL, " +");
-      oper = ptr;
-      address = atoi (addr);
+      char *str_operand = ptr;
+
       ptr = strtok (NULL, " ");
 
       if (ptr != NULL && ptr[0] != ';')
@@ -128,25 +135,18 @@ writeTranslationTo (const char *filename)
           errOutput (errMsg);
         }
 
-      if (!atoi (addr) && strcmp (addr, "00") != 0)
-        {
-          char errMsg[64];
-          sprintf (errMsg, "Expected address of memory cell on line %d\n", i);
-          errOutput (errMsg);
-        }
-
-      operand = atoi (oper);
+      int operand = atoi (str_operand);
       char buffer[255];
       sprintf (buffer, "%02x", operand);
       sscanf (buffer, "%02x", &operand);
 
       if (command[0] == '=')
         {
-          sscanf (oper, "%x", &operand);
+          sscanf (str_operand, "%x", &operand);
           sc_memorySet (address, operand);
           continue;
         }
-      num_of_cmd = getCommandNum (command);
+      int num_of_cmd = getCommandNum (command);
 
       // command encoding, correctness checking, writing to mem
       int value = 0;
