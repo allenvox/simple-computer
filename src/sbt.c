@@ -1,9 +1,12 @@
 #include "rpn.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int basic_counter = 0, assembler_counter = 0, goto_counter = 0, variable_counter = 0;
+#define MAX_VARIABLES 26
+
+char *output_filename;
 FILE *input = NULL, *output = NULL;
 
 void
@@ -13,8 +16,19 @@ loadFiles (const char *input_file, const char *output_file)
     {
       errOutput ("Input file does not exist\n");
     }
+  output_filename = strdup (output_file);
   output = fopen (output_file, "w");
 }
+
+typedef struct command
+{
+  int basic_line;
+  char *command;
+  int assembler_line;
+} command;
+
+int basic_counter = 0;
+int assembler_counter = 0;
 
 void
 assemblerOutput (char *cmd, int operand)
@@ -23,101 +37,6 @@ assemblerOutput (char *cmd, int operand)
   assembler_counter++;
 }
 
-int
-isVariable (char name)
-{
-  return (name >= 'A' || name <= 'Z');
-}
-
-void
-INPUT (char var)
-{
-  if (!isVariable(var))
-    {
-      errOutput("Wrong variable name\n");
-    }
-  assemblerOutput("READ", getVariableAddress(var));
-}
-
-void
-PRINT (char var)
-{
-  if (!isVariable(var))
-    {
-      errOutput ("Wrong variable name.\n");
-    }
-  assemblerOutput ("WRITE", getVariableAddress(var));
-}
-
-void
-GOTO (int address, int operand)
-{
-  for (int i = 0; i < basic_counter; i++)
-    {
-      if (all_commands_array[i].num == operand)
-        {
-          assemblerOutput ("JUMP", all_commands_array[i].address);
-        }
-    }
-  errOutput ("Memory location specified in GOTO not found\n");
-}
-
-void
-LET (char *arguments)
-{
-  char fin[255];
-  char var = preCalcProcessing (arguments);
-  translateToRPN (arguments, fin);
-  parseRPN (fin, var);
-}
-
-void
-END ()
-{
-  assemblerOutput ("HALT", 0);
-}
-
-void
-handle_basic_function (char *cmd, char *args)
-{
-  if (strcmp (cmd, "REM") == 0)
-    {
-    }
-  else if (strcmp (cmd, "INPUT") == 0)
-    {
-      INPUT (args);
-    }
-  else if (strcmp (cmd, "PRINT") == 0)
-    {
-      PRINT (args);
-    }
-  else if (strcmp (cmd, "IF") == 0)
-    {
-      IF (args);
-    }
-  else if (strcmp (cmd, "LET") == 0)
-    {
-      LET (args);
-    }
-  else if (strcmp (cmd, "END") == 0)
-    {
-      END ();
-    }
-  else
-    {
-      char errMsg[64];
-      sprintf (errMsg, "'%s' in not a valid command\n", cmd);
-      errOutput (errMsg);
-    }
-}
-
-/*
-void IF (char *arguments);
-void GOTO (int address, int operand);
-void parseRPN (char *rpn, char var);
-void LET (char *arguments);
-*/
-
 typedef struct variable
 {
   char name;
@@ -125,20 +44,25 @@ typedef struct variable
   int value;
 } variable;
 
-variable variables[52];
-char lastConstantName = 'a';
+variable variables[MAX_VARIABLES];
+int variable_counter = 0;
+char last_const = 'A';
 
-typedef struct command
+int
+isVariable (char name)
 {
-  int num;
-  char *command;
-  int address;
-} command;
+  if (name >= 'A' && name <= 'Z')
+    {
+      return 0;
+    }
+  return 1;
+}
 
 int
 getVariableAddress (char name)
 {
-  for (int i = 0; i < 52; i++)
+  // loop through all variables - if not found, fill the first empty one
+  for (int i = 0; i < MAX_VARIABLES; i++)
     {
       if (variables[i].name == name)
         {
@@ -158,12 +82,12 @@ getVariableAddress (char name)
 char
 intToConstant (int value)
 {
-  for (int i = 0; i < 52; i++)
+  for (int i = 0; i < MAX_VARIABLES; i++)
     {
       if (variables[i].name == NULL)
         {
-          variables[i].name = lastConstantName;
-          lastConstantName++;
+          variables[i].name = last_const;
+          last_const++;
           variables[i].address = 99 - i;
           variables[i].value = value;
           assemblerOutput ("=", variables[i].value);
@@ -178,6 +102,7 @@ intToConstant (int value)
             }
         }
     }
+  return 0;
 }
 
 char
@@ -185,21 +110,24 @@ preCalcProcessing (char *expr)
 {
   char *ptr = strtok (expr, " =");
   char val;
-  sscanf (ptr, "%s", &val);
-  if (!isVariable(val))
+  sscanf (ptr, "%c", &val);
+  if (isVariable (ptr[0]) != 0)
     {
       errOutput ("Incorrect variable\n");
     }
+  
   ptr = strtok (NULL, " ");
   char *equal = ptr;
   if (strcmp (equal, "=") != 0)
     {
       errOutput ("Wrong expression\n");
     }
+  
   ptr = strtok (NULL, "");
   char *exp = ptr;
   int i = 0, j = 0, pos = 0, operat = 0, flg = 1, m = 0;
   char *assign = (char *)malloc (sizeof (char) * 255);
+  
   for (int k = 0; k < (int)strlen (exp); k++)
     {
       if (exp[k] == '-' && flg)
@@ -256,117 +184,42 @@ preCalcProcessing (char *expr)
   return val;
 }
 
-command *goto_commands_array;
-command *all_commands_array;
+void
+INPUT (char var)
+{
+  if (isVariable (var) != 0)
+    {
+      printf("%c = %d\n", var, var);
+      errOutput ("Wrong variable name\n");
+    }
+  assemblerOutput ("READ", getVariableAddress (var));
+}
 
 void
-basic_translate ()
+PRINT (char var)
 {
-  // counting all instructions
-  int instructions_counter = 1;
-  while (1)
+  if (isVariable (var) != 0)
     {
-      char temp[255];
-      fgets (temp, 254, input);
-      if (feof (input))
-        {
-          break;
-        }
-      instructions_counter++;
+      errOutput ("Wrong variable name.\n");
     }
-  basic_counter = instructions_counter;
+  assemblerOutput ("WRITE", getVariableAddress (var));
+}
 
-  rewind (input); // return to the beggining of input file
+int goto_counter = 0;
+command *all_commands_array, *goto_commands_array;
 
-  all_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
-  goto_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
-
-  // fill command str to command structure
-  for (int i = 0; i < instructions_counter; i++)
+int
+getGotoDestination (int line_num)
+{
+  for (int i = 0; i < basic_counter; i++)
     {
-      all_commands_array[i].command = (char *)malloc (sizeof (char) * 255);
-      if (!fgets (all_commands_array[i].command, 254, input))
+      if (all_commands_array[i].basic_line == line_num)
         {
-          if (feof (input))
-            {
-              break;
-            }
-          else
-            {
-              char errMsg[64];
-              sprintf (errMsg, "Can't read line %d from input file\n", i);
-              errOutput (errMsg);
-            }
+          return all_commands_array[i].assembler_line;
         }
     }
-
-  for (int i = 0; i < instructions_counter; i++)
-    {
-      char *this_command = (char *)malloc (sizeof (char) * 255);
-      sprintf (this_command, "%s", all_commands_array[i].command);
-
-      char *ptr = strtok (this_command, " ");
-      char *line_num_str = ptr;
-
-      // basic command structure: LINE_NUM COMMAND VARIABLE [GOTO LINE_NUM]
-      // check on correct
-      if ((strcmp (line_num_str, "0") == 0) || (strcmp (line_num_str, "00") == 0))
-        {
-          char errMsg[64];
-          sprintf (errMsg, "Expected line number on line %d\n", i);
-          errOutput (errMsg);
-        }
-
-      // fill line number to command structure
-      int line_num_int = atoi (line_num_str);
-      if (i - 1 >= 0)
-        {
-          if (line_num_int <= all_commands_array[i - 1].num)
-            {
-              char errMsg[64];
-              sprintf (errMsg, "Wrong line number on line %d\n", i);
-              errOutput (errMsg);
-            }
-        }
-      all_commands_array[i].num = line_num_int;
-
-      ptr = strtok (NULL, " ");
-      char *cmd = ptr;
-
-      ptr = strtok (NULL, "");
-      char *args = ptr;
-
-      all_commands_array[i].address = assembler_counter;
-
-      if (strcmp (cmd, "GOTO") != 0)
-        {
-          // handling any command except goto
-          handle_basic_function (cmd, args);
-        }
-      else
-        {
-          // handling new goto
-          command new_goto;
-          new_goto.num = all_commands_array[i].num;
-          new_goto.command = all_commands_array[i].command;
-          new_goto.address = all_commands_array[i].address;
-
-          goto_commands_array[i] = new_goto;
-          goto_counter++;
-          assembler_counter++;
-        }
-    }
-  
-  // all goto commands recovery to output file
-  for (int i = 0; i <= goto_counter; i++)
-    {
-      int address = goto_commands_array[i].address;
-      char *ptr = strtok (goto_commands_array[i].command, " ");
-      ptr = strtok (NULL, " ");
-      ptr = strtok (NULL, "");
-      int operand = atoi (ptr);
-      GOTO (address, operand);
-    }
+  errOutput ("Memory location specified in GOTO not found\n");
+  return 0;
 }
 
 void
@@ -422,6 +275,21 @@ parseRPN (char *rpn, char var)
       errOutput ("Incorrect LET statement\n");
     }
   assemblerOutput ("STORE", getVariableAddress (var));
+}
+
+void
+LET (char *arguments)
+{
+  char fin[255];
+  char var = preCalcProcessing (arguments);
+  translateToRPN (arguments, fin);
+  parseRPN (fin, var);
+}
+
+void
+END ()
+{
+  assemblerOutput ("HALT", 0);
 }
 
 void
@@ -495,7 +363,7 @@ IF (char *arguments)
         {
           operand1Name = intToConstant (atoi (operand1));
         }
-      else if (isVariable (operand1))
+      else if (isVariable (operand1[0]) == 0)
         {
           operand1Name = operand1[0];
         }
@@ -511,7 +379,7 @@ IF (char *arguments)
   char *operand2 = ptr;
 
   char operand2Name;
-  if (strlen (operand2) > 1 || isdigit (operand2))
+  if (strlen (operand2) > 1 || (atoi (operand2) >= 0 && atoi (operand2) <= 9))
     {
       if (atoi (operand2))
         {
@@ -520,7 +388,7 @@ IF (char *arguments)
     }
   else
     {
-      if (isVariable (operand2))
+      if (isVariable (operand2[0]) == 0)
         {
           operand2Name = operand2[0];
         }
@@ -561,27 +429,203 @@ IF (char *arguments)
   ptr = strtok (NULL, "");
   char *args = ptr;
 
-  if (strcmp (cmd, "IF") == 0)
-    {
-      errOutput ("Multiple IFs");
-    }
-  else if (strcmp (cmd, "GOTO") != 0)
-    {
-      handle_basic_function (cmd, args);
-    }
-  else
+  if (strcmp (cmd, "GOTO") == 0)
     {
       // handling goto expression in a conditional statement
       goto_counter++;
       command new_goto;
-      new_goto.address = assembler_counter;
+      new_goto.assembler_line = assembler_counter;
       char *buff = (char *)malloc (sizeof (char) * 255);
       sprintf (buff, "%d GOTO %s", falsePosition, args);
       new_goto.command = buff;
       goto_commands_array[goto_counter] = new_goto;
       assembler_counter++;
     }
+  else
+    {
+      errOutput ("Not GOTO after condition");
+    }
   fprintf (output, "%.2i JUMP %d\n", falsePosition, assembler_counter);
+}
+
+void
+handle_basic_function (char *cmd, char *args)
+{
+  if (strcmp (cmd, "REM") == 0)
+    {
+    }
+  else if (strcmp (cmd, "INPUT") == 0)
+    {
+      INPUT (args[0]);
+    }
+  else if (strcmp (cmd, "PRINT") == 0)
+    {
+      PRINT (args[0]);
+    }
+  else if (strcmp (cmd, "IF") == 0)
+    {
+      IF (args);
+    }
+  else if (strcmp (cmd, "LET") == 0)
+    {
+      LET (args);
+    }
+  else if (strcmp (cmd, "END") == 0)
+    {
+      END ();
+    }
+  else
+    {
+      char errMsg[64];
+      sprintf (errMsg, "'%s' in not a valid command\n", cmd);
+      errOutput (errMsg);
+    }
+}
+
+void
+replaceLine (int dstline, char *new_line)
+{
+  FILE *fPtr = fopen (output_filename, "r");
+  FILE *fTemp = fopen ("out.tmp", "w");
+  if (fPtr == NULL || fTemp == NULL)
+    {
+      errOutput ("Can't open a file");
+    }
+  char buff[64];
+  int current_line = 0;
+  while ((fgets (buff, 64, fPtr)) != NULL)
+    {
+      current_line++;
+      if (current_line == dstline)
+        {
+          fputs (new_line, fTemp);
+        }
+      else
+        {
+          fputs (buff, fTemp);
+        }
+    }
+  fclose (fPtr);
+  fclose (fTemp);
+  remove (output_filename);
+  rename ("out.tmp", output_filename);
+}
+
+void
+basic_translate ()
+{
+  // counting all instructions
+  int instructions_counter = 1;
+  while (1)
+    {
+      char temp[255];
+      fgets (temp, 254, input);
+      if (feof (input))
+        {
+          break;
+        }
+      instructions_counter++;
+    }
+  basic_counter = instructions_counter;
+
+  rewind (input); // return to the beggining of input file
+  
+  all_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
+  goto_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
+
+  // fill command str to command structure
+  for (int i = 0; i < instructions_counter; i++)
+    {
+      all_commands_array[i].command = (char *)malloc (sizeof (char) * 255);
+      if (!fgets (all_commands_array[i].command, 254, input))
+        {
+          if (feof (input))
+            {
+              break;
+            }
+          else
+            {
+              char errMsg[64];
+              sprintf (errMsg, "Can't read line %d from input file\n", i);
+              errOutput (errMsg);
+            }
+        }
+    }
+  
+  for (int i = 0; i < instructions_counter; i++)
+    {
+      char *this_command = (char *)malloc (sizeof (char) * 255);
+      sprintf (this_command, "%s", all_commands_array[i].command);
+
+      char *ptr = strtok (this_command, " ");
+      char *line_num_str = ptr;
+
+      // check line num correctness
+      if ((strcmp (line_num_str, "0") == 0) || (strcmp (line_num_str, "00") == 0))
+        {
+          char errMsg[64];
+          sprintf (errMsg, "Expected line number on line %d\n", i);
+          errOutput (errMsg);
+        }
+
+      // fill line number to command structure
+      int line_num_int = atoi (line_num_str);
+      if (i - 1 >= 0)
+        {
+          if (line_num_int <= all_commands_array[i - 1].basic_line)
+            {
+              char errMsg[64];
+              sprintf (errMsg, "Wrong line number on line %d\n", i);
+              errOutput (errMsg);
+            }
+        }
+      all_commands_array[i].basic_line = line_num_int;
+
+      ptr = strtok (NULL, " ");
+      char *cmd = ptr;
+
+      ptr = strtok (NULL, "");
+      char *args = ptr;
+
+      all_commands_array[i].assembler_line = assembler_counter;
+
+      if (strcmp (cmd, "GOTO") != 0)
+        {
+          handle_basic_function (cmd, args);
+        }
+      else
+        {
+          // handling new direct goto
+          command new_goto;
+          new_goto.basic_line = all_commands_array[i].basic_line;
+          new_goto.command = all_commands_array[i].command;
+          new_goto.assembler_line = all_commands_array[i].assembler_line;
+
+          goto_commands_array[i] = new_goto;
+          goto_counter++;
+         
+          assemblerOutput ("JMP", -1);
+        }
+    }
+  fclose (output);/*
+  // recover all direct goto commands
+  for (int i = 1; i <= goto_counter; i++)
+    {
+      int assembler_line_to_change = goto_commands_array[i].assembler_line;
+      printf ("cmd = %s\n", goto_commands_array[i].command);
+      char *ptr = strtok (goto_commands_array[i].command, " ");
+      printf ("ptr = %s\n", ptr);
+      ptr = strtok (NULL, " ");
+      printf ("ptr = %s\n", ptr);
+      ptr = strtok (NULL, "");
+      printf ("ptr = %s\n", ptr);
+      int basic_dst = atoi (ptr);
+
+      char new_line[64];
+      sprintf (new_line, "%.2i %s %d", goto_commands_array[i].assembler_line, goto_commands_array[i].command, getGotoDestination (basic_dst));
+      replaceLine (assembler_line_to_change, new_line);
+      //GOTO (assembler_line_to_change, basic_dst);
+    }*/
 }
 
 int
@@ -589,11 +633,10 @@ main (int argc, const char **argv)
 {
   if (argc < 3)
     {
-      errOutput ("Usage: ./sbt <input_basic_file.sb> <output_assembler_file.sa>\n");
+      errOutput ("Usage: ./sbt <IN_program.sb> <OUT_assembler_file.sa>\n");
     }
   loadFiles (argv[1], argv[2]);
   basic_translate ();
   fclose (input);
-  fclose (output);
   return 0;
 }
