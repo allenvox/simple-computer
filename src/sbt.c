@@ -33,7 +33,7 @@ int assembler_counter = 0;
 void
 assemblerOutput (char *cmd, int operand)
 {
-  fprintf (output, "%.2i %s %d\n", assembler_counter, cmd, operand);
+  fprintf (output, "%.2i %s %.2d\n", assembler_counter, cmd, operand);
   assembler_counter++;
 }
 
@@ -44,9 +44,8 @@ typedef struct variable
   int value;
 } variable;
 
-variable variables[MAX_VARIABLES];
+variable variables[MAX_VARIABLES * 2];
 int variable_counter = 0;
-char last_const = 'A';
 
 int
 isVariable (char name)
@@ -79,15 +78,17 @@ getVariableAddress (char name)
   return 0;
 }
 
+char last_const_alias = 'a';
+
 char
 intToConstant (int value)
 {
-  for (int i = 0; i < MAX_VARIABLES; i++)
+  for (int i = MAX_VARIABLES; i < MAX_VARIABLES * 2; i++)
     {
       if (variables[i].name == NULL)
         {
-          variables[i].name = last_const;
-          last_const++;
+          variables[i].name = last_const_alias;
+          last_const_alias++;
           variables[i].address = 99 - i;
           variables[i].value = value;
           assemblerOutput ("=", variables[i].value);
@@ -292,17 +293,17 @@ END ()
   assemblerOutput ("HALT", 0);
 }
 
-void
-IF (char *arguments)
+char
+*getCorrectIfExpression (char *arguments)
 {
-  // loop through all args - if sign, check if there is space before or after it
+  // loop through all args - check if there is space before or after logical sign
   int sign = -1, before = 0, after = 0;
   for (int i = 0; i < (int)strlen (arguments); i++)
     {
       if ((arguments[i] == '>') || (arguments[i] == '<')
           || (arguments[i] == '='))
         {
-          sign = i;
+          sign = i; // sign variable shows logical sign's position
           if (arguments[i - 1] != ' ')
             {
               before = 1;
@@ -316,25 +317,25 @@ IF (char *arguments)
     }
   
   char *expression = (char *)malloc (sizeof (char) * 255);
-  if (before == 0 && after == 0)
+  if (before == 0 && after == 0) // if sign comes with both spaces between operands
     {
       expression = strtok (arguments, "");
     }
-  else
+  else // add all needed spaces between operands
     {
       int j = 0;
       for (int i = 0; i < (int)strlen (arguments); i++)
         {
-          if (i == sign)
+          if (i == sign) // sign is current char
             {
-              if (before != 0)
+              if (before != 0) // if space not comes before logical sign
                 {
                   expression[j] = ' ';
                   j++;
                 }
               expression[j] = arguments[i];
               j++;
-              if (after != 0)
+              if (after != 0) // if space not comes after logical sign
                 {
                   expression[j] = ' ';
                   j++;
@@ -348,19 +349,23 @@ IF (char *arguments)
         }
       expression[j] = '\0';
     }
-  
+  return expression;
+}
+
+void handle_basic_function (char *cmd, char *args);
+
+void
+IF (char *arguments)
+{
+  char *expression = getCorrectIfExpression (arguments);
   char *ptr = strtok (expression, " ");
   char *operand1 = ptr;
   char operand1Name;
-
-  if (strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9')))
+  if ((strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9'))) && (atoi (operand1) != 0))
     {
-      if (atoi (operand1))
-        {
-          operand1Name = intToConstant (atoi (operand1));
-        }
+      operand1Name = intToConstant (atoi (operand1));
     }
-  else
+  else // if operand is variable
     {
       if (isVariable (operand1[0]) == 0)
         {
@@ -398,30 +403,30 @@ IF (char *arguments)
         }
     }
 
-  int falsePosition = -1;
+  int position = -1;
   if (logicalSign[0] == '<')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JNEG", assembler_counter + 2);
-      falsePosition = assembler_counter;
-      assembler_counter++;
+      assemblerOutput ("JNEG", assembler_counter + 1);
+      position = assembler_counter;
+      //assembler_counter++;
     }
   else if (logicalSign[0] == '>')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand2Name));
       assemblerOutput ("SUB", getVariableAddress (operand1Name));
-      assemblerOutput ("JNEG", assembler_counter + 2);
-      falsePosition = assembler_counter;
-      assembler_counter++;
+      assemblerOutput ("JNEG", assembler_counter + 1);
+      position = assembler_counter;
+      //assembler_counter++;
     }
   else if (logicalSign[0] == '=')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JZ", assembler_counter + 2);
-      falsePosition = assembler_counter;
-      assembler_counter++;
+      assemblerOutput ("JZ", assembler_counter + 1);
+      position = assembler_counter;
+      //assembler_counter++;
     }
 
   ptr = strtok (NULL, " ");
@@ -432,20 +437,23 @@ IF (char *arguments)
   if (strcmp (cmd, "GOTO") == 0)
     {
       // handling goto expression in a conditional statement
-      goto_counter++;
-      command new_goto;
-      new_goto.assembler_line = assembler_counter;
       char *buff = (char *)malloc (sizeof (char) * 255);
-      sprintf (buff, "%d GOTO %s", falsePosition, args);
-      new_goto.command = buff;
-      goto_commands_array[goto_counter] = new_goto;
-      assembler_counter++;
+      sprintf (buff, "%.2i GOTO %s", position, args);
+      goto_commands_array[goto_counter].basic_line = position;
+      goto_commands_array[goto_counter].assembler_line = assembler_counter;
+      goto_commands_array[goto_counter].command = buff;
+      goto_counter++;
+      assemblerOutput ("JUMP", -1);
     }
   else
     {
-      errOutput ("Not GOTO after condition");
+      if (strcmp (cmd, "IF") == 0)
+        {
+          errOutput ("Can't handle multiple if statements");
+        }
+      handle_basic_function (cmd, args);
     }
-  fprintf (output, "%.2i JUMP %d\n", falsePosition, assembler_counter);
+  //fprintf (output, "%.2i JUMP %d\n", position, assembler_counter);
 }
 
 void
@@ -477,7 +485,7 @@ handle_basic_function (char *cmd, char *args)
   else
     {
       char errMsg[64];
-      sprintf (errMsg, "'%s' in not a valid command\n", cmd);
+      sprintf (errMsg, "'%s' is not a valid command\n", cmd);
       errOutput (errMsg);
     }
 }
@@ -600,7 +608,7 @@ basic_translate ()
           goto_commands_array[goto_counter].command = all_commands_array[i].command;
           goto_commands_array[goto_counter].assembler_line = all_commands_array[i].assembler_line;
           goto_counter++;
-          assemblerOutput ("JMP", -1);
+          assemblerOutput ("JUMP", -1);
         }
     }
   fclose (output);
@@ -614,13 +622,11 @@ basic_translate ()
       char *cmd = strdup (current_goto.command);
       char *ptr = strtok (cmd, " ");
       ptr = strtok (NULL, " ");
-      char *cmd_keyword = strdup (ptr);
       ptr = strtok (NULL, "");
       int dst_basic_line = atoi (ptr);
 
       char new_goto_line[64];
-      sprintf (new_goto_line, "%.2i %s %.2d\n", assembler_line_to_change, cmd_keyword, getGotoDestination (dst_basic_line));
-      printf("new line - %s\n", new_goto_line);
+      sprintf (new_goto_line, "%.2i JUMP %.2d\n", assembler_line_to_change, getGotoDestination (dst_basic_line));
       replaceLine (assembler_line_to_change, new_goto_line);
     }
 }
