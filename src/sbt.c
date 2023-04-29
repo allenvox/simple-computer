@@ -295,26 +295,28 @@ END ()
 void
 IF (char *arguments)
 {
-  int mySign = -1, before = 0, after = 0;
+  // loop through all args - if sign, check if there is space before or after it
+  int sign = -1, before = 0, after = 0;
   for (int i = 0; i < (int)strlen (arguments); i++)
     {
       if ((arguments[i] == '>') || (arguments[i] == '<')
           || (arguments[i] == '='))
         {
-          mySign = i;
-          if (!(arguments[i - 1] == ' '))
+          sign = i;
+          if (arguments[i - 1] != ' ')
             {
               before = 1;
             }
-          if (!(arguments[i + 1] == ' '))
+          if (arguments[i + 1] != ' ')
             {
               after = 1;
             }
           break;
         }
     }
+  
   char *expression = (char *)malloc (sizeof (char) * 255);
-  if (!(before) && !(after))
+  if (before == 0 && after == 0)
     {
       expression = strtok (arguments, "");
     }
@@ -323,16 +325,16 @@ IF (char *arguments)
       int j = 0;
       for (int i = 0; i < (int)strlen (arguments); i++)
         {
-          if (i == mySign)
+          if (i == sign)
             {
-              if (before)
+              if (before != 0)
                 {
                   expression[j] = ' ';
                   j++;
                 }
               expression[j] = arguments[i];
               j++;
-              if (after)
+              if (after != 0)
                 {
                   expression[j] = ' ';
                   j++;
@@ -346,11 +348,12 @@ IF (char *arguments)
         }
       expression[j] = '\0';
     }
+  
   char *ptr = strtok (expression, " ");
   char *operand1 = ptr;
   char operand1Name;
 
-  if (strlen (operand1) > 1)
+  if (strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9')))
     {
       if (atoi (operand1))
         {
@@ -359,11 +362,7 @@ IF (char *arguments)
     }
   else
     {
-      if ((operand1[0] >= '0') && (operand1[0] <= '9'))
-        {
-          operand1Name = intToConstant (atoi (operand1));
-        }
-      else if (isVariable (operand1[0]) == 0)
+      if (isVariable (operand1[0]) == 0)
         {
           operand1Name = operand1[0];
         }
@@ -375,11 +374,12 @@ IF (char *arguments)
 
   ptr = strtok (NULL, " ");
   char *logicalSign = ptr;
+
   ptr = strtok (NULL, " ");
   char *operand2 = ptr;
 
   char operand2Name;
-  if (strlen (operand2) > 1 || (atoi (operand2) >= 0 && atoi (operand2) <= 9))
+  if (strlen (operand2) > 1 || ((operand2[0] >= '0') && (operand2[0] <= '9')))
     {
       if (atoi (operand2))
         {
@@ -492,7 +492,7 @@ replaceLine (int dstline, char *new_line)
       errOutput ("Can't open a file");
     }
   char buff[64];
-  int current_line = 0;
+  int current_line = -1; // since 0 assembly line = 1 txt line
   while ((fgets (buff, 64, fPtr)) != NULL)
     {
       current_line++;
@@ -596,36 +596,33 @@ basic_translate ()
       else
         {
           // handling new direct goto
-          command new_goto;
-          new_goto.basic_line = all_commands_array[i].basic_line;
-          new_goto.command = all_commands_array[i].command;
-          new_goto.assembler_line = all_commands_array[i].assembler_line;
-
-          goto_commands_array[i] = new_goto;
+          goto_commands_array[goto_counter].basic_line = all_commands_array[i].basic_line;
+          goto_commands_array[goto_counter].command = all_commands_array[i].command;
+          goto_commands_array[goto_counter].assembler_line = all_commands_array[i].assembler_line;
           goto_counter++;
-         
           assemblerOutput ("JMP", -1);
         }
     }
-  fclose (output);/*
-  // recover all direct goto commands
+  fclose (output);
+  
+  // recover all goto commands
   for (int i = 1; i <= goto_counter; i++)
     {
-      int assembler_line_to_change = goto_commands_array[i].assembler_line;
-      printf ("cmd = %s\n", goto_commands_array[i].command);
-      char *ptr = strtok (goto_commands_array[i].command, " ");
-      printf ("ptr = %s\n", ptr);
-      ptr = strtok (NULL, " ");
-      printf ("ptr = %s\n", ptr);
-      ptr = strtok (NULL, "");
-      printf ("ptr = %s\n", ptr);
-      int basic_dst = atoi (ptr);
+      command current_goto = goto_commands_array[i - 1];
 
-      char new_line[64];
-      sprintf (new_line, "%.2i %s %d", goto_commands_array[i].assembler_line, goto_commands_array[i].command, getGotoDestination (basic_dst));
-      replaceLine (assembler_line_to_change, new_line);
-      //GOTO (assembler_line_to_change, basic_dst);
-    }*/
+      int assembler_line_to_change = current_goto.assembler_line;
+      char *cmd = strdup (current_goto.command);
+      char *ptr = strtok (cmd, " ");
+      ptr = strtok (NULL, " ");
+      char *cmd_keyword = strdup (ptr);
+      ptr = strtok (NULL, "");
+      int dst_basic_line = atoi (ptr);
+
+      char new_goto_line[64];
+      sprintf (new_goto_line, "%.2i %s %.2d\n", assembler_line_to_change, cmd_keyword, getGotoDestination (dst_basic_line));
+      printf("new line - %s\n", new_goto_line);
+      replaceLine (assembler_line_to_change, new_goto_line);
+    }
 }
 
 int
