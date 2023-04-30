@@ -60,8 +60,8 @@ isVariable (char name)
 int
 getVariableAddress (char name)
 {
-  // loop through all variables - if not found, fill the first empty one
-  for (int i = 0; i < MAX_VARIABLES; i++)
+  // loop through all variables, if not found - create new one
+  for (int i = 0; i < MAX_VARIABLES * 2; i++)
     {
       if (variables[i].name == name)
         {
@@ -83,13 +83,13 @@ char last_const_alias = 'a';
 char
 intToConstant (int value)
 {
-  for (int i = MAX_VARIABLES; i < MAX_VARIABLES * 2; i++)
+  for (int i = 0; i < MAX_VARIABLES * 2; i++)
     {
       if (variables[i].name == NULL)
         {
           variables[i].name = last_const_alias;
           last_const_alias++;
-          variables[i].address = 99 - i;
+          variables[i].address = assembler_counter;
           variables[i].value = value;
           assemblerOutput ("=", variables[i].value);
           variable_counter++;
@@ -107,81 +107,84 @@ intToConstant (int value)
 }
 
 char
-preCalcProcessing (char *expr)
+preCalcProcessing (char *args)
 {
-  char *ptr = strtok (expr, " =");
+  char *ptr = strtok (args, " =");
   char val;
-  sscanf (ptr, "%c", &val);
+  sscanf (ptr, "%c", &val); // get variable
   if (isVariable (ptr[0]) != 0)
     {
       errOutput ("Incorrect variable\n");
     }
   
   ptr = strtok (NULL, " ");
-  char *equal = ptr;
+  char *equal = ptr; // check equal sign correctness
   if (strcmp (equal, "=") != 0)
     {
       errOutput ("Wrong expression\n");
     }
   
   ptr = strtok (NULL, "");
-  char *exp = ptr;
-  int i = 0, j = 0, pos = 0, operat = 0, flg = 1, m = 0;
-  char *assign = (char *)malloc (sizeof (char) * 255);
+  char *expression = ptr;
   
-  for (int k = 0; k < (int)strlen (exp); k++)
+  char *assign = (char *)malloc (sizeof (char) * 255);
+  int operat = 0, flg = 1, m = 0;
+  for (int k = 0; k < (int)strlen (expression); k++)
     {
-      if (exp[k] == '-' && flg)
+      if (expression[k] == '-' && flg)
         {
           assign[m] = '0';
           m++;
         }
       flg = 0;
-      if (exp[k] == '+' || exp[k] == '-' || exp[k] == '/' || exp[k] == '*')
+      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*')
         {
           operat++;
         }
-      if (exp[k] == '+' || exp[k] == '-' || exp[k] == '/' || exp[k] == '*'
-          || exp[k] == '(')
+      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*'
+          || expression[k] == '(')
         {
           flg = 1;
         }
-      assign[m] = exp[k];
+      assign[m] = expression[k];
       m++;
     }
+  
   if (operat == 0) // 0+ перед ним, если перед минусом нет аргумента, то пишем
                    // 0 перед миунсом
     {
-      sprintf (exp, "0 + %s", assign);
+      sprintf (expression, "0 + %s", assign);
     }
   else
     {
-      sprintf (exp, "%s", assign);
+      sprintf (expression, "%s", assign);
     }
-  while (exp[i] != '\n' && exp[i] != '\0')
+  
+  int i = 0, j = 0, pos = 0;
+  while (expression[i] != '\n' && expression[i] != '\0')
     {
-      if (exp[i] >= '0' && exp[i] <= '9')
+      if (expression[i] >= '0' && expression[i] <= '9')
         {
           char num[256];
           j = 0;
-          num[j] = exp[i];
+          num[j] = expression[i];
           j++;
           pos = i;
-          exp[i] = ' ';
+          expression[i] = ' ';
           i++;
-          while (exp[i] >= '0' && exp[i] <= '9')
+          while (expression[i] >= '0' && expression[i] <= '9')
             {
-              num[j] = exp[i];
+              num[j] = expression[i];
               j++;
-              exp[i] = ' ';
+              expression[i] = ' ';
               i++;
             }
           num[j] = '\0';
-          exp[pos] = intToConstant (atoi (num));
+          expression[pos] = intToConstant (atoi (num));
         }
       i++;
     }
-  sprintf (expr, "%s", exp);
+  sprintf (args, "%s", expression); // modify arguments with final expression
   return val;
 }
 
@@ -281,10 +284,13 @@ parseRPN (char *rpn, char var)
 void
 LET (char *arguments)
 {
-  char fin[255];
-  char var = preCalcProcessing (arguments);
-  translateToRPN (arguments, fin);
-  parseRPN (fin, var);
+  // e.g. args = " B = B * C "
+  char expression[255];
+  char var = preCalcProcessing (arguments); // put variable to modify in var, expression in args
+  // var: ' B ', args: " B * C "
+  translateToRPN (arguments, expression); // translate regular expression to RPN expression
+  // expression: " BC* "
+  parseRPN (expression, var); // assign var to expression
 }
 
 void
@@ -406,27 +412,24 @@ IF (char *arguments)
   int position = -1;
   if (logicalSign[0] == '<')
     {
-      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
-      assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JNEG", assembler_counter + 1);
+      assemblerOutput ("LOAD", getVariableAddress (operand2Name));
+      assemblerOutput ("SUB", getVariableAddress (operand1Name));
+      assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
-      //assembler_counter++;
     }
   else if (logicalSign[0] == '>')
     {
-      assemblerOutput ("LOAD", getVariableAddress (operand2Name));
-      assemblerOutput ("SUB", getVariableAddress (operand1Name));
-      assemblerOutput ("JNEG", assembler_counter + 1);
+      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
+      assemblerOutput ("SUB", getVariableAddress (operand2Name));
+      assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
-      //assembler_counter++;
     }
   else if (logicalSign[0] == '=')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JZ", assembler_counter + 1);
+      assemblerOutput ("JZ", assembler_counter + 2);
       position = assembler_counter;
-      //assembler_counter++;
     }
 
   ptr = strtok (NULL, " ");
