@@ -57,7 +57,7 @@ WRITE (int operand) // write memory unit contents to console
   char buff[6];
   g_getunit (operand, &buff);
   char tmp[16];
-  sprintf (tmp, " Output:> %s", buff);
+  sprintf (tmp, " Output (hex):> %s", buff);
   mt_gotoXY (RESULTFIELD_X, 1);
   mt_printtext (tmp);
   return 0;
