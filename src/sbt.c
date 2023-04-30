@@ -133,43 +133,43 @@ preCalcProcessing (char *args)
     {
       if (expression[k] == '-' && flg)
         {
-          assign[m] = '0';
+          assign[m] = '0'; // if minus before operand, interprete as ' 0 - operand '
           m++;
         }
       flg = 0;
       if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*')
         {
+          // if current char is operator
           operat++;
         }
       if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*'
           || expression[k] == '(')
         {
+          // set flag to 1 if current char is operator/open paretheses
           flg = 1;
         }
       assign[m] = expression[k];
       m++;
     }
   
-  if (operat == 0) // 0+ перед ним, если перед минусом нет аргумента, то пишем
-                   // 0 перед миунсом
+  if (operat == 0) // if no operators (just variable/constant), interprete as ' 0 + operand '
     {
       sprintf (expression, "0 + %s", assign);
     }
-  else
+  else // default expression interpretation
     {
       sprintf (expression, "%s", assign);
     }
   
-  int i = 0, j = 0, pos = 0;
-  while (expression[i] != '\n' && expression[i] != '\0')
+  for (int i = 0; expression[i] != '\n' && expression[i] != '\0'; i++)
     {
-      if (expression[i] >= '0' && expression[i] <= '9')
+      if (expression[i] >= '0' && expression[i] <= '9') // if digit
         {
           char num[256];
-          j = 0;
+          int j = 0;
           num[j] = expression[i];
           j++;
-          pos = i;
+          int pos = i;
           expression[i] = ' ';
           i++;
           while (expression[i] >= '0' && expression[i] <= '9')
@@ -182,7 +182,6 @@ preCalcProcessing (char *args)
           num[j] = '\0';
           expression[pos] = intToConstant (atoi (num));
         }
-      i++;
     }
   sprintf (args, "%s", expression); // modify arguments with final expression
   return val;
@@ -229,19 +228,18 @@ getGotoDestination (int line_num)
 void
 parseRPN (char *rpn, char var)
 {
-  int i = 0, depth = 0, operand1, operand2;
-  char memoryCounter = '1';
-  while (rpn[i] != '\0' && rpn[i] != '\n')
+  char memoryCounter = last_const_alias;
+  int depth = 0;
+  for (int i = 0; rpn[i] != '\0' && rpn[i] != '\n'; i++)
     {
-      char x = rpn[i];
-      if ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'))
+      if ((rpn[i] >= 'a' && rpn[i] <= 'z') || isVariable (rpn[i]) == 0) // if variable/const
         {
-          assemblerOutput ("LOAD", getVariableAddress (x));
+          assemblerOutput ("LOAD", getVariableAddress (rpn[i]));
           assemblerOutput ("STORE", getVariableAddress (memoryCounter));
           memoryCounter++;
           depth++;
         }
-      if (x == '+' || x == '-' || x == '*' || x == '/')
+      else if (rpn[i] == '+' || rpn[i] == '-' || rpn[i] == '*' || rpn[i] == '/') // if operator
         {
           if (depth < 2)
             {
@@ -249,30 +247,29 @@ parseRPN (char *rpn, char var)
             }
           else
             {
-              operand1 = getVariableAddress (memoryCounter - 2);
-              operand2 = getVariableAddress (memoryCounter - 1);
+              int operand1 = getVariableAddress (memoryCounter - 2);
+              int operand2 = getVariableAddress (memoryCounter - 1);
               assemblerOutput ("LOAD", operand1);
-              switch (x)
+              switch (rpn[i]) // operators handling
                 {
-                case '+': // summation
+                case '+':
                   assemblerOutput ("ADD", operand2);
                   break;
-                case '-': // substraction
+                case '-':
                   assemblerOutput ("SUB", operand2);
                   break;
-                case '/': // division
+                case '/':
                   assemblerOutput ("DIVIDE", operand2);
                   break;
-                case '*': // multiplication
+                case '*':
                   assemblerOutput ("MUL", operand2);
                   break;
                 }
               assemblerOutput ("STORE", getVariableAddress (memoryCounter - 2));
               depth--;
-              memoryCounter = memoryCounter - 1;
+              memoryCounter--;
             }
         }
-      i++;
     }
   if (depth != 1)
     {
@@ -412,15 +409,15 @@ IF (char *arguments)
   int position = -1;
   if (logicalSign[0] == '<')
     {
-      assemblerOutput ("LOAD", getVariableAddress (operand2Name));
-      assemblerOutput ("SUB", getVariableAddress (operand1Name));
+      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
+      assemblerOutput ("SUB", getVariableAddress (operand2Name));
       assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
     }
   else if (logicalSign[0] == '>')
     {
-      assemblerOutput ("LOAD", getVariableAddress (operand1Name));
-      assemblerOutput ("SUB", getVariableAddress (operand2Name));
+      assemblerOutput ("LOAD", getVariableAddress (operand2Name));
+      assemblerOutput ("SUB", getVariableAddress (operand1Name));
       assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
     }
@@ -457,6 +454,7 @@ IF (char *arguments)
       handle_basic_function (cmd, args);
     }
   //fprintf (output, "%.2i JUMP %d\n", position, assembler_counter);
+  //assembler_counter++;
 }
 
 void
