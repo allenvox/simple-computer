@@ -407,26 +407,27 @@ IF (char *arguments)
     }
 
   int position = -1;
+  char *goto_category;
   if (logicalSign[0] == '<')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
+      goto_category = "JNEG";
     }
   else if (logicalSign[0] == '>')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand2Name));
       assemblerOutput ("SUB", getVariableAddress (operand1Name));
-      assemblerOutput ("JNEG", assembler_counter + 2);
       position = assembler_counter;
+      goto_category = "JNEG";
     }
   else if (logicalSign[0] == '=')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      assemblerOutput ("JZ", assembler_counter + 2);
       position = assembler_counter;
+      goto_category = "JZ";
     }
 
   ptr = strtok (NULL, " ");
@@ -434,27 +435,21 @@ IF (char *arguments)
   ptr = strtok (NULL, "");
   char *args = ptr;
 
-  if (strcmp (cmd, "GOTO") == 0)
+  if (strcmp (cmd, "GOTO") != 0)
     {
-      // handling goto expression in a conditional statement
-      char *buff = (char *)malloc (sizeof (char) * 255);
-      sprintf (buff, "%.2i GOTO %s", position, args);
-      goto_commands_array[goto_counter].basic_line = position;
-      goto_commands_array[goto_counter].assembler_line = assembler_counter;
-      goto_commands_array[goto_counter].command = buff;
-      goto_counter++;
-      assemblerOutput ("JUMP", -1);
+      errOutput ("Can't handle not GOTO after condition");
     }
-  else
-    {
-      if (strcmp (cmd, "IF") == 0)
-        {
-          errOutput ("Can't handle multiple if statements");
-        }
-      handle_basic_function (cmd, args);
-    }
-  //fprintf (output, "%.2i JUMP %d\n", position, assembler_counter);
-  //assembler_counter++;
+
+  // handling goto expression in a conditional statement
+  char *buff = (char *)malloc (sizeof (char) * 255);
+  sprintf (buff, "%s %s", goto_category, args);
+  goto_commands_array[goto_counter].basic_line = -1;
+  goto_commands_array[goto_counter].command = buff;
+  goto_commands_array[goto_counter].assembler_line = position;
+  printf("command = %s\n", buff);
+  printf("pos = %d\n", position);
+  goto_counter++;
+  assemblerOutput (goto_category, -1);
 }
 
 void
@@ -605,8 +600,10 @@ basic_translate ()
       else
         {
           // handling new direct goto
+          char *buff = (char *)malloc (sizeof (char) * 255);
+          sprintf (buff, "JUMP %s", args);
           goto_commands_array[goto_counter].basic_line = all_commands_array[i].basic_line;
-          goto_commands_array[goto_counter].command = all_commands_array[i].command;
+          goto_commands_array[goto_counter].command = buff;
           goto_commands_array[goto_counter].assembler_line = all_commands_array[i].assembler_line;
           goto_counter++;
           assemblerOutput ("JUMP", -1);
@@ -622,12 +619,12 @@ basic_translate ()
       int assembler_line_to_change = current_goto.assembler_line;
       char *cmd = strdup (current_goto.command);
       char *ptr = strtok (cmd, " ");
-      ptr = strtok (NULL, " ");
+      char *goto_category = ptr;
       ptr = strtok (NULL, "");
       int dst_basic_line = atoi (ptr);
 
       char new_goto_line[64];
-      sprintf (new_goto_line, "%.2i JUMP %.2d\n", assembler_line_to_change, getGotoDestination (dst_basic_line));
+      sprintf (new_goto_line, "%.2i %s %.2d\n", assembler_line_to_change, goto_category, getGotoDestination (dst_basic_line));
       replaceLine (assembler_line_to_change, new_goto_line);
     }
 }
