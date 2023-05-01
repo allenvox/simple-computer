@@ -116,34 +116,36 @@ preCalcProcessing (char *args)
     {
       errOutput ("Incorrect variable\n");
     }
-  
+
   ptr = strtok (NULL, " ");
   char *equal = ptr; // check equal sign correctness
   if (strcmp (equal, "=") != 0)
     {
       errOutput ("Wrong expression\n");
     }
-  
+
   ptr = strtok (NULL, "");
   char *expression = ptr;
-  
+
   char *assign = (char *)malloc (sizeof (char) * 255);
   int operat = 0, flg = 1, m = 0;
   for (int k = 0; k < (int)strlen (expression); k++)
     {
       if (expression[k] == '-' && flg)
         {
-          assign[m] = '0'; // if minus before operand, interprete as ' 0 - operand '
+          assign[m]
+              = '0'; // if minus before operand, interprete as ' 0 - operand '
           m++;
         }
       flg = 0;
-      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*')
+      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/'
+          || expression[k] == '*')
         {
           // if current char is operator
           operat++;
         }
-      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/' || expression[k] == '*'
-          || expression[k] == '(')
+      if (expression[k] == '+' || expression[k] == '-' || expression[k] == '/'
+          || expression[k] == '*' || expression[k] == '(')
         {
           // set flag to 1 if current char is operator/open paretheses
           flg = 1;
@@ -151,8 +153,9 @@ preCalcProcessing (char *args)
       assign[m] = expression[k];
       m++;
     }
-  
-  if (operat == 0) // if no operators (just variable/constant), interprete as ' 0 + operand '
+
+  if (operat == 0) // if no operators (just variable/constant), interprete as '
+                   // 0 + operand '
     {
       sprintf (expression, "0 + %s", assign);
     }
@@ -160,7 +163,7 @@ preCalcProcessing (char *args)
     {
       sprintf (expression, "%s", assign);
     }
-  
+
   for (int i = 0; expression[i] != '\n' && expression[i] != '\0'; i++)
     {
       if (expression[i] >= '0' && expression[i] <= '9') // if digit
@@ -192,7 +195,6 @@ INPUT (char var)
 {
   if (isVariable (var) != 0)
     {
-      printf("%c = %d\n", var, var);
       errOutput ("Wrong variable name\n");
     }
   assemblerOutput ("READ", getVariableAddress (var));
@@ -232,14 +234,16 @@ parseRPN (char *rpn, char var)
   int depth = 0;
   for (int i = 0; rpn[i] != '\0' && rpn[i] != '\n'; i++)
     {
-      if ((rpn[i] >= 'a' && rpn[i] <= 'z') || isVariable (rpn[i]) == 0) // if variable/const
+      if ((rpn[i] >= 'a' && rpn[i] <= 'z')
+          || isVariable (rpn[i]) == 0) // if variable/const
         {
           assemblerOutput ("LOAD", getVariableAddress (rpn[i]));
           assemblerOutput ("STORE", getVariableAddress (memoryCounter));
           memoryCounter++;
           depth++;
         }
-      else if (rpn[i] == '+' || rpn[i] == '-' || rpn[i] == '*' || rpn[i] == '/') // if operator
+      else if (rpn[i] == '+' || rpn[i] == '-' || rpn[i] == '*'
+               || rpn[i] == '/') // if operator
         {
           if (depth < 2)
             {
@@ -265,7 +269,8 @@ parseRPN (char *rpn, char var)
                   assemblerOutput ("MUL", operand2);
                   break;
                 }
-              assemblerOutput ("STORE", getVariableAddress (memoryCounter - 2));
+              assemblerOutput ("STORE",
+                               getVariableAddress (memoryCounter - 2));
               depth--;
               memoryCounter--;
             }
@@ -283,11 +288,17 @@ LET (char *arguments)
 {
   // e.g. args = " B = B * C "
   char expression[255];
-  char var = preCalcProcessing (arguments); // put variable to modify in var, expression in args
-  // var: ' B ', args: " B * C "
-  translateToRPN (arguments, expression); // translate regular expression to RPN expression
-  // expression: " BC* "
-  parseRPN (expression, var); // assign var to expression
+
+  // put variable to modify in var, expression in args
+  char var = preCalcProcessing (arguments);
+  // result var: ' B ', result args: " B * C "
+
+  // translate regular expression to RPN expression
+  translateToRPN (arguments, expression);
+  // result expression: " BC* "
+
+  // assign var to expression
+  parseRPN (expression, var);
 }
 
 void
@@ -296,10 +307,11 @@ END ()
   assemblerOutput ("HALT", 0);
 }
 
-char
-*getCorrectIfExpression (char *arguments)
+char *
+getCorrectIfExpression (char *arguments)
 {
-  // loop through all args - check if there is space before or after logical sign
+  // loop through all args
+  // check if there is space before or after logical sign
   int sign = -1, before = 0, after = 0;
   for (int i = 0; i < (int)strlen (arguments); i++)
     {
@@ -318,13 +330,15 @@ char
           break;
         }
     }
-  
+
   char *expression = (char *)malloc (sizeof (char) * 255);
-  if (before == 0 && after == 0) // if sign comes with both spaces between operands
+  // if sign comes with both spaces between operands
+  if (before == 0 && after == 0)
     {
       expression = strtok (arguments, "");
     }
-  else // add all needed spaces between operands
+  // else - add all needed spaces between operands
+  else
     {
       int j = 0;
       for (int i = 0; i < (int)strlen (arguments); i++)
@@ -364,7 +378,8 @@ IF (char *arguments)
   char *ptr = strtok (expression, " ");
   char *operand1 = ptr;
   char operand1Name;
-  if ((strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9'))) && (atoi (operand1) != 0))
+  if ((strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9')))
+      && (atoi (operand1) != 0))
     {
       operand1Name = intToConstant (atoi (operand1));
     }
@@ -406,27 +421,23 @@ IF (char *arguments)
         }
     }
 
-  int position = -1;
-  char *goto_category;
+  char *goto_category = NULL;
   if (logicalSign[0] == '<')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      position = assembler_counter;
       goto_category = "JNEG";
     }
   else if (logicalSign[0] == '>')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand2Name));
       assemblerOutput ("SUB", getVariableAddress (operand1Name));
-      position = assembler_counter;
       goto_category = "JNEG";
     }
   else if (logicalSign[0] == '=')
     {
       assemblerOutput ("LOAD", getVariableAddress (operand1Name));
       assemblerOutput ("SUB", getVariableAddress (operand2Name));
-      position = assembler_counter;
       goto_category = "JZ";
     }
 
@@ -445,9 +456,7 @@ IF (char *arguments)
   sprintf (buff, "%s %s", goto_category, args);
   goto_commands_array[goto_counter].basic_line = -1;
   goto_commands_array[goto_counter].command = buff;
-  goto_commands_array[goto_counter].assembler_line = position;
-  printf("command = %s\n", buff);
-  printf("pos = %d\n", position);
+  goto_commands_array[goto_counter].assembler_line = assembler_counter;
   goto_counter++;
   assemblerOutput (goto_category, -1);
 }
@@ -533,9 +542,11 @@ basic_translate ()
   basic_counter = instructions_counter;
 
   rewind (input); // return to the beggining of input file
-  
-  all_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
-  goto_commands_array = (command *)malloc (sizeof (command) * instructions_counter);
+
+  all_commands_array
+      = (command *)malloc (sizeof (command) * instructions_counter);
+  goto_commands_array
+      = (command *)malloc (sizeof (command) * instructions_counter);
 
   // fill command str to command structure
   for (int i = 0; i < instructions_counter; i++)
@@ -555,7 +566,7 @@ basic_translate ()
             }
         }
     }
-  
+
   for (int i = 0; i < instructions_counter; i++)
     {
       char *this_command = (char *)malloc (sizeof (char) * 255);
@@ -565,7 +576,8 @@ basic_translate ()
       char *line_num_str = ptr;
 
       // check line num correctness
-      if ((strcmp (line_num_str, "0") == 0) || (strcmp (line_num_str, "00") == 0))
+      if ((strcmp (line_num_str, "0") == 0)
+          || (strcmp (line_num_str, "00") == 0))
         {
           char errMsg[64];
           sprintf (errMsg, "Expected line number on line %d\n", i);
@@ -602,15 +614,17 @@ basic_translate ()
           // handling new direct goto
           char *buff = (char *)malloc (sizeof (char) * 255);
           sprintf (buff, "JUMP %s", args);
-          goto_commands_array[goto_counter].basic_line = all_commands_array[i].basic_line;
+          goto_commands_array[goto_counter].basic_line
+              = all_commands_array[i].basic_line;
           goto_commands_array[goto_counter].command = buff;
-          goto_commands_array[goto_counter].assembler_line = all_commands_array[i].assembler_line;
+          goto_commands_array[goto_counter].assembler_line
+              = all_commands_array[i].assembler_line;
           goto_counter++;
           assemblerOutput ("JUMP", -1);
         }
     }
   fclose (output);
-  
+
   // recover all goto commands
   for (int i = 1; i <= goto_counter; i++)
     {
@@ -624,7 +638,8 @@ basic_translate ()
       int dst_basic_line = atoi (ptr);
 
       char new_goto_line[64];
-      sprintf (new_goto_line, "%.2i %s %.2d\n", assembler_line_to_change, goto_category, getGotoDestination (dst_basic_line));
+      sprintf (new_goto_line, "%.2i %s %.2d\n", assembler_line_to_change,
+               goto_category, getGotoDestination (dst_basic_line));
       replaceLine (assembler_line_to_change, new_goto_line);
     }
 }

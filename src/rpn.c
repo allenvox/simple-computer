@@ -105,7 +105,7 @@ translateToRPN (char *inf, char *rpn)
         }
       else if (x != ' ')
         {
-          errOutput("Wrong expression\n");
+          errOutput ("Wrong expression\n");
         }
       i++;
     }
