@@ -96,7 +96,7 @@ translateToRPN (char *inf, char *rpn)
           stack_pop (&root);
         }
 
-      // if operator - check its priority and add 
+      // if operator - check its priority and add
       else if (x == '+' || x == '-' || x == '*' || x == '/')
         {
           while (root != NULL
