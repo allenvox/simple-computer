@@ -626,9 +626,9 @@ basic_translate ()
   fclose (output);
 
   // recover all goto commands
-  for (int i = 1; i <= goto_counter; i++)
+  for (int i = 0; i < goto_counter; i++)
     {
-      command current_goto = goto_commands_array[i - 1];
+      command current_goto = goto_commands_array[i];
 
       int assembler_line_to_change = current_goto.assembler_line;
       char *cmd = strdup (current_goto.command);

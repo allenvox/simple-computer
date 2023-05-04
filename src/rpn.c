@@ -117,7 +117,6 @@ translateToRPN (char *inf, char *rpn)
         {
           errOutput ("Wrong expression\n");
         }
-      i++;
     }
 
   // pop all operations and add them to RPN str
