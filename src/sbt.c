@@ -60,13 +60,15 @@ int
 getVariableAddress (char name)
 {
   // loop through all variables & constants, if not found - create new one
-  for (int i = 0; i < MAX_VARIABLES * 2; i++) // constants are lowercase, variables - uppercase
+  for (int i = 0; i < MAX_VARIABLES * 2;
+       i++) // constants are lowercase, variables - uppercase
     {
       if (variables[i].name == name)
         {
           return variables[i].address;
         }
-      if (isVariable (variables[i].name) != 0 && !(variables[i].name >= 'a' && variables[i].name <= 'z'))
+      if (isVariable (variables[i].name) != 0
+          && !(variables[i].name >= 'a' && variables[i].name <= 'z'))
         {
           variables[i].name = name;
           variables[i].address = 99 - i;
@@ -404,7 +406,8 @@ IF (char *arguments)
   char *operand2 = ptr;
 
   char operand2Name = 0;
-  if ((strlen (operand2) > 1 && atoi (operand2)) || ((operand2[0] >= '0') && (operand2[0] <= '9')))
+  if ((strlen (operand2) > 1 && atoi (operand2))
+      || ((operand2[0] >= '0') && (operand2[0] <= '9')))
     {
       operand2Name = intToConstant (atoi (operand2));
     }
@@ -576,8 +579,7 @@ basic_translate ()
 
       // check line num correctness
       if ((strcmp (line_num_str, "0") == 0)
-          || (strcmp (line_num_str, "00") == 0)
-          || (atoi (line_num_str) == 0))
+          || (strcmp (line_num_str, "00") == 0) || (atoi (line_num_str) == 0))
         {
           char errMsg[64];
           sprintf (errMsg, "Expected correct line number on line %d\n", i);
