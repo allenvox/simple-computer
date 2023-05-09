@@ -66,7 +66,7 @@ getVariableAddress (char name)
         {
           return variables[i].address;
         }
-      if (variables[i].name == NULL)
+      if (isVariable (variables[i].name) != 0 && !(variables[i].name >= 'a' && variables[i].name <= 'z'))
         {
           variables[i].name = name;
           variables[i].address = 99 - i;
@@ -74,6 +74,7 @@ getVariableAddress (char name)
           return variables[i].address;
         }
     }
+  errOutput ("Variable/constant not found\n");
   return 0;
 }
 
@@ -84,7 +85,11 @@ intToConstant (int value)
 {
   for (int i = 0; i < MAX_VARIABLES * 2; i++)
     {
-      if (variables[i].name == NULL)
+      if (isVariable (variables[i].name) == 0)
+        {
+          continue;
+        }
+      if (!(variables[i].name >= 'a' && variables[i].name <= 'z'))
         {
           variables[i].name = last_const_alias;
           last_const_alias++;
@@ -94,13 +99,10 @@ intToConstant (int value)
           variable_counter++;
           return variables[i].name;
         }
-      if (variables[i].value != NULL)
+      /*if (variables[i].value == value)
         {
-          if (variables[i].value == value)
-            {
-              return variables[i].name;
-            }
-        }
+          return variables[i].name;
+        }*/
     }
   return 0;
 }
@@ -239,6 +241,7 @@ parseRPN (char *rpn, char var)
           assemblerOutput ("LOAD", getVariableAddress (rpn[i]));
           assemblerOutput ("STORE", getVariableAddress (memoryCounter));
           memoryCounter++;
+          last_const_alias++;
           depth++;
         }
       else if (rpn[i] == '+' || rpn[i] == '-' || rpn[i] == '*'
@@ -376,7 +379,7 @@ IF (char *arguments)
   char *expression = getCorrectIfExpression (arguments);
   char *ptr = strtok (expression, " ");
   char *operand1 = ptr;
-  char operand1Name;
+  char operand1Name = 0;
   if ((strlen (operand1) > 1 || ((operand1[0] >= '0') && (operand1[0] <= '9')))
       && (atoi (operand1) != 0))
     {
@@ -400,13 +403,10 @@ IF (char *arguments)
   ptr = strtok (NULL, " ");
   char *operand2 = ptr;
 
-  char operand2Name;
-  if (strlen (operand2) > 1 || ((operand2[0] >= '0') && (operand2[0] <= '9')))
+  char operand2Name = 0;
+  if ((strlen (operand2) > 1 && atoi (operand2)) || ((operand2[0] >= '0') && (operand2[0] <= '9')))
     {
-      if (atoi (operand2))
-        {
-          operand2Name = intToConstant (atoi (operand2));
-        }
+      operand2Name = intToConstant (atoi (operand2));
     }
   else
     {
