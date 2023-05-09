@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_VARIABLES 26
+#define MAX_VARIABLES 26 // length of english alphabet (A - Z)
 
 char *output_filename;
 FILE *input = NULL, *output = NULL;
@@ -27,8 +27,7 @@ typedef struct command
   int assembler_line;
 } command;
 
-int basic_counter = 0;
-int assembler_counter = 0;
+int basic_counter = 0, assembler_counter = 0;
 
 void
 assemblerOutput (char *cmd, int operand)
@@ -60,8 +59,8 @@ isVariable (char name)
 int
 getVariableAddress (char name)
 {
-  // loop through all variables, if not found - create new one
-  for (int i = 0; i < MAX_VARIABLES * 2; i++)
+  // loop through all variables & constants, if not found - create new one
+  for (int i = 0; i < MAX_VARIABLES * 2; i++) // constants are lowercase, variables - uppercase
     {
       if (variables[i].name == name)
         {
@@ -78,7 +77,7 @@ getVariableAddress (char name)
   return 0;
 }
 
-char last_const_alias = 'a';
+char last_const_alias = 'a'; // first constant name
 
 char
 intToConstant (int value)
@@ -498,15 +497,15 @@ handle_basic_function (char *cmd, char *args)
 void
 replaceLine (int dstline, char *new_line)
 {
-  FILE *fPtr = fopen (output_filename, "r");
-  FILE *fTemp = fopen ("out.tmp", "w");
+  FILE *fPtr = fopen (output_filename, "r"); // already existing outputted file
+  FILE *fTemp = fopen ("out.tmp", "w");      // temporary file to write changes
   if (fPtr == NULL || fTemp == NULL)
     {
       errOutput ("Can't open a file");
     }
-  char buff[64];
-  int current_line = -1; // since 0 assembly line = 1 txt line
-  while ((fgets (buff, 64, fPtr)) != NULL)
+  char buff[128];
+  int current_line = -1; // since 0th assembly line = 1st txt line
+  while ((fgets (buff, 128, fPtr)) != NULL)
     {
       current_line++;
       if (current_line == dstline)
@@ -548,7 +547,7 @@ basic_translate ()
   goto_commands_array
       = (command *)malloc (sizeof (command) * instructions_counter);
 
-  // fill command str to command structure
+  // fill .command field in every command structure
   for (int i = 0; i < instructions_counter; i++)
     {
       all_commands_array[i].command = (char *)malloc (sizeof (char) * 255);
@@ -577,10 +576,11 @@ basic_translate ()
 
       // check line num correctness
       if ((strcmp (line_num_str, "0") == 0)
-          || (strcmp (line_num_str, "00") == 0))
+          || (strcmp (line_num_str, "00") == 0)
+          || (atoi (line_num_str) == 0))
         {
           char errMsg[64];
-          sprintf (errMsg, "Expected line number on line %d\n", i);
+          sprintf (errMsg, "Expected correct line number on line %d\n", i);
           errOutput (errMsg);
         }
 
@@ -588,6 +588,7 @@ basic_translate ()
       int line_num_int = atoi (line_num_str);
       if (i - 1 >= 0)
         {
+          // if current line number is higher than previous one - error
           if (line_num_int <= all_commands_array[i - 1].basic_line)
             {
               char errMsg[64];
