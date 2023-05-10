@@ -27,7 +27,14 @@ sig_handle_alarm ()
   g_highlightmemory (x, y);
   g_drawbcbox ();
   sc_regGet (FLAG_IGNORE, &flag);
-  alarm (!flag);
+  if (flag == 0)
+    {
+      ualarm (100, 0);
+    }
+  else
+    {
+      alarm (0);
+    }
   return 0;
 }
 
