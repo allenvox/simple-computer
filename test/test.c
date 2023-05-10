@@ -1,7 +1,10 @@
+#include "alu.h"
 #include "bc.h"
 #include "ctest.h"
+#include "cu.h"
 #include "msc.h"
 #include "readkey.h"
+#include "sig.h"
 #include "term.h"
 #include "tui.h"
 
@@ -327,5 +330,103 @@ CTEST (terminal_regime, valid)
   int result = rk_mytermregime (0, 0, 1, 0, 1);
   int expected = 0;
   rk_mytermrestore ();
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_handle_reset, valid)
+{
+  int result = sig_handle_reset ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_handle_alarm, valid)
+{
+  int result = sig_handle_alarm ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (sig_set, valid)
+{
+  int result = sig_set ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (alu, valid)
+{
+  int result = ALU (0x30, 1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_read, valid)
+{
+  int result = READ (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_write, valid)
+{
+  int result = WRITE (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_load, valid)
+{
+  int result = LOAD (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_store, valid)
+{
+  int result = STORE (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jump, valid)
+{
+  int result = JUMP (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jneg, valid)
+{
+  int result = JNEG (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jz, valid)
+{
+  int result = JZ (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_halt, valid)
+{
+  int result = HALT ();
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_jns, valid)
+{
+  int result = JNS (1);
+  int expected = 0;
+  ASSERT_EQUAL (expected, result);
+}
+
+CTEST (cu_cu, valid)
+{
+  int result = CU ();
+  int expected = 0;
   ASSERT_EQUAL (expected, result);
 }

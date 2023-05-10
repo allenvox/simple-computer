@@ -79,7 +79,9 @@ rk_readkey (enum keys *key)
 int
 rk_mytermsave ()
 {
-  return tcsetattr (STDOUT_FILENO, TCSANOW, &current);
+  tcsetattr (STDOUT_FILENO, TCSANOW, &current);
+  memcpy (&backup, &current, sizeof (backup));
+  return 0;
 }
 
 int
@@ -91,36 +93,56 @@ rk_mytermrestore ()
 int
 rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint)
 {
-  if (tcgetattr (STDOUT_FILENO, &current))
+  if (tcgetattr (STDOUT_FILENO, &current) != 0)
     {
-      return 1;
+      return -1;
     }
+  // канонический режим = 1
   if (regime)
     {
       current.c_lflag |= ICANON;
     }
-  else
+  else if (!regime)
     {
       current.c_lflag &= ~ICANON;
     }
-  if (echo)
+  else
+    {
+      return -1;
+    }
+  // неканонический режим работы
+  if (!regime)
+    {
+      // количество символов в очереди, чтобы read завершился
+      current.c_cc[VTIME] = vtime;
+      // сколько времени ждать появления символа
+      current.c_cc[VMIN] = vmin;
+    }
+  // символы будут отражаться по мере набора
+  if (echo == 1)
     {
       current.c_lflag |= ECHO;
     }
-  else
+  else if (!echo)
     {
       current.c_lflag &= ~ECHO;
     }
-
+  else
+    {
+      return -1;
+    }
+  // обработка клавиш прерывания
   if (sigint)
     {
       current.c_lflag |= ISIG;
     }
-  else
+  else if (!sigint)
     {
       current.c_lflag &= ~ISIG;
     }
-  current.c_cc[VTIME] = vtime;
-  current.c_cc[VMIN] = vmin;
+  else
+    {
+      return -1;
+    }
   return tcsetattr (STDOUT_FILENO, TCSANOW, &current);
 }

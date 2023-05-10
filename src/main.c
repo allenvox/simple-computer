@@ -12,13 +12,9 @@ int
 main ()
 {
   sc_memoryInit ();
-  for (int i = 3; i < 100; i += 3)
-    {
-      sc_memorySet (i, i * 3);
-    }
   sc_regInit ();
   sc_regSet (FLAG_IGNORE, 1);
-  sc_accumSet (9999);
+  sc_accumSet (0);
   sc_countSet (0);
   sig_set ();
 
