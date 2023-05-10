@@ -48,17 +48,15 @@ checkPriority (char sign)
     {
     case '*':
     case '/':
-      return 3;
+      return 2;
     case '+':
     case '-':
-      return 2;
-    case '(':
-    case ')':
       return 1;
     }
   return 0;
 }
 
+// translate infix notation to rpn
 char *
 translateToRPN (char *inf, char *rpn)
 {
@@ -68,7 +66,7 @@ translateToRPN (char *inf, char *rpn)
     {
       char x = inf[i];
 
-      // if current char is variable/constant - just add to RPN str
+      // if current char is variable or constant - just add to RPN
       if ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'))
         {
           rpn[j] = x;
@@ -102,6 +100,7 @@ translateToRPN (char *inf, char *rpn)
           while (root != NULL
                  && checkPriority (root->data) >= checkPriority (x))
             {
+              // pop operations of not less priority before pushing a new one
               char c = stack_pop (&root);
               if (c != 0)
                 {
@@ -115,11 +114,11 @@ translateToRPN (char *inf, char *rpn)
       // if neither var/const/operator/space - wrong character
       else if (x != ' ')
         {
-          errOutput ("Wrong expression\n");
+          errOutput ("Wrong infix expression\n");
         }
     }
 
-  // pop all operations and add them to RPN str
+  // pop all remaining operations and add them to RPN str
   while (root != NULL)
     {
       char c = stack_pop (&root);
@@ -130,12 +129,12 @@ translateToRPN (char *inf, char *rpn)
         }
     }
 
-  // if left any parentheses - user inputted too much of them
+  // if left any parentheses - user input too much of them
   for (int k = 0; k < j; k++)
     {
       if (rpn[k] == '(' || rpn[k] == ')')
         {
-          errOutput ("Check your expression for unneeded parentheses\n");
+          errOutput ("Check your infix expression for unneeded parentheses\n");
         }
     }
   rpn[j] = '\0';
